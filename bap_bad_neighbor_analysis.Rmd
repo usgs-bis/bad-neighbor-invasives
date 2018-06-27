@@ -1,0 +1,10 @@
+---
+title: "Bad Neighbor Analysis Biogeographic Analysis Package"
+author: "Enrique L. Monta&ntilde;o, PhD"
+date: "July-1-2018"
+output: html_notebook
+---
+
+## Project Overview
+
+The purpose of this project is to create a state-by-state list of regulated non-native (i.e. invasive) species found in adjacent states, but not yet documented in the state of interest.
