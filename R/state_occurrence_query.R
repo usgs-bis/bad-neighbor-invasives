@@ -46,7 +46,7 @@ state_occurrence_query <- function(fips_list, taxon) {
     # find the index of any list element with more than 1 row
     bad_idx <- which(b > 1)
 
-    # remove (and export?) the anomaly
+    # remove and export the anomaly
     if(length(bad_idx) > 0) {
         # drop the unwanted elements
         tsn_list <- a[-c(bad_idx)]
@@ -56,7 +56,7 @@ state_occurrence_query <- function(fips_list, taxon) {
         exp_df <- tibble::tibble(tsn = a[bad_idx], sname = sn_df$name[c(bad_idx)], cnt = sn_df$cnt[c(bad_idx)])
         
         # create a file name
-        out_name <- stringr::str_c("fips_", stringr::str_replace_all(fips_list, "\\s", "_"), "questions.csv")
+        out_name <- stringr::str_c("fips_", stringr::str_replace_all(fips_list, "\\s", "_"), "_questions.csv")
         
         # write the output
         write_csv(unnest(exp_df), path = file.path("question_species", out_name))
@@ -73,34 +73,17 @@ state_occurrence_query <- function(fips_list, taxon) {
     # combine the two
     full_df <- dplyr::bind_cols(full_df, tsn = tsn_df$value)#, tsn_cnt = tsn_df$count)
 
-    # The TSN field *might* contain multiple entries where taxonomic synonyms or hominymns occur.
+    # The TSN field *might* contain multiple entries where taxonomic synonyms or hominymns occur.  This should be fixed
+    # (or reduced) in future ITIS updates.
     # The semicolon separator precludes promoting the field to integer as we want, so, for now,
-    # we can split the field on the semicolon and keep the first entry (assumed to be the accepted TSN)
-    # test for presence of a semicolon
+    # remove the questions.
     
-    # if(sum(stringr::str_detect(full_df$tsn, ";")) > 0) {
-    #     # split the string on the first semicolon (there will be two parts regardless of the number of semicolons)
-    #     tmp1 <- str_split_fixed(full_df$tsn, ";", n = 2)
-    #     # reassign the first column of TSN to the data frame
-    #     full_df$tsn <- tmp1[, 1]
-    # }
+    # keep only the tsn without semicolons
+    full_df <- dplyr::filter(full_df, !stringr::str_detect(tsn, ";"))
 
     # # promote the data types
     full_df$tsn <- as.numeric(full_df$tsn)
-    # tsn_df$cnt <- as.numeric(full_df$count)
 
     # return the result
     return(full_df)
 }
-
-
-# <option value="%20AND%20hierarchy_homonym_string:*\-179913\-*">Mammals (Mammalia)</option>
-#     <option value="%20AND%20hierarchy_homonym_string:*\-173747\-*">Reptiles (Reptilia)</option>
-#         <option value="%20AND%20hierarchy_homonym_string:*\-174371\-*">Birds (Aves)</option>
-#             <option value="%20AND%20hierarchy_homonym_string:*\-161030\-*">Boney Fish (Osteichthyes)</option> 
-#                 <option value="%20AND%20hierarchy_homonym_string:*\-173420\-*">Amphibians (Amphibia)</option>
-#                     <option value="%20AND%20hierarchy_homonym_string:*\-99208\-*">Insects (Insecta)</option>  
-#                         <option value="%20AND%20hierarchy_homonym_string:*\-202423\-*">All Animals (Animalia)</option>
-#                             <option value="%20AND%20hierarchy_homonym_string:*\-500009\-*">Conifers (Pinopsida)</option>
-#                                 <option value="%20AND%20hierarchy_homonym_string:*\-202422\-*">All Plants (Plantae)</option>
-                                    # <option value="%20AND%20hierarchy_homonym_string:*\-555705\-*">Fungi</option>
