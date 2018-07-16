@@ -1,4 +1,5 @@
-**README**
+# README
+
 This is a repo for an R-based analysis of non-native species occurrences in the Lower 48 U.S. (including the District of Columbia), also referred to as the Bad Neighbor analysis.
 The project uses the Biodiversity Information Serving Our Nation (BISON) species occurrence database https://bison.usgs.gov
 
@@ -11,4 +12,4 @@ R: the main R source code
 bap_bad_neighbor_analysis.rmd (.html) documents the project
 
 ## Who do I talk to?
-Repo owner or admin: Enrique MontaÃ±o (emontano@usgs.gov or tresmont@gmail.com)
+Repo owner or admin: Enrique Montaño (emontano@usgs.gov or tresmont@gmail.com)
