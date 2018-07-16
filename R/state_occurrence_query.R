@@ -63,6 +63,7 @@ state_occurrence_query <- function(fips_list, taxon) {
     } else {
         # keep all
         tsn_list <- a
+        full_df <- sn_df
     }
 
     # the result contains a pivot list of TSN associated with the ITIS scientific names
