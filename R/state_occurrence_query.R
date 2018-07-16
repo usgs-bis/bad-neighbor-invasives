@@ -1,10 +1,5 @@
 # require(tidyverse)
 
-# clean_result <- function(l) {
-#     
-# }
-
-
 state_occurrence_query <- function(fips_list, taxon) {
     
     # build the string for the query
@@ -59,6 +54,12 @@ state_occurrence_query <- function(fips_list, taxon) {
 
         # export the anomaly
         exp_df <- tibble::tibble(tsn = a[bad_idx], sname = sn_df$name[c(bad_idx)], cnt = sn_df$cnt[c(bad_idx)])
+        
+        # create a file name
+        out_name <- stringr::str_c("fips_", stringr::str_replace_all(fips_list, "\\s", "_"), "questions.csv")
+        
+        # write the output
+        write_csv(unnest(exp_df), path = file.path("question_species", out_name))
     } else {
         # keep all
         tsn_list <- a
