@@ -5,6 +5,118 @@ date: "July-1-2018"
 output: html_notebook
 ---
 
+```{r}
+# libraries for the notebook
+library(tidyverse)
+```
+
+
 ## Project Overview
 
 The purpose of this project is to create a state-by-state list of regulated non-native (i.e. invasive) species found in adjacent states, but not yet documented in the state of interest.
+
+The analysis begins with a query to BISON for the state of interest, then replicating the query for the bordering states.
+
+## Testing
+
+The main query source code is located in `"R/state_occurrence_query.R"`
+
+The query requires two parameters
+1) A single state FIPS code or a parenthetical group of FIPS codes.  Pairs of state FIPS codes and surrounding states are pre-developed and stored in `data/state_lookup.csv`.  Note: the list includes the Distict of Columbia;
+2) A string hierarchy_homonym_string in the form: "*\\-179913\\-*".  Again, a predefined list is stored in: `data/heirarchy_strings.csv`.  The list of taxa is currently restricted to the best represented taxa in BISON.
+
+
+```{r}
+# compile the query query code
+source("R/state_occurrence_query.R")
+
+# run the code for Virginia
+# 51 FIPS code for Virginia
+# list of surrounding state FIPS codes
+buff_states <- "(24 11 37 47 21 54)"
+
+# "*\\-202422\\-*" hierarchy_homonym_string for all plants
+va_nn <- state_occurrence_query(fips_list = 51, taxon = "*\\-202422\\-*")
+
+# view the result
+# va_nn
+
+buff_nn <- state_occurrence_query(fips_list = buff_states, taxon = "*\\-202422\\-*")
+
+```
+
+## Using lookup tables
+
+We can now test the code using lookup tables.
+
+First, the states:
+
+```{r state-codes}
+state_codes <- read_csv("data/state_lookup.csv")
+state_codes
+```
+
+Next, the hierarchy homonym strings:
+
+```{r taxon-strings}
+taxa <- read_csv("data/heirarchy_strings.csv")
+taxa
+```
+
+Using the same example state above, Virgina, we can replicate the result using the lookup tables as input to the query.
+
+```{r lookup-test}
+
+va_data <- filter(state_codes, state_name == "Virginia")
+va_data
+
+va_nn_lookup <- state_occurrence_query(fips_list = va_data$state_fips, taxon = taxa$hierarchy_homonym_string[4])
+va_nn_buffer_lookup <- state_occurrence_query(fips_list = va_data$buffer_fips, taxon = taxa$hierarchy_homonym_string[4])
+```
+
+We are getting the same result from both versions of the data, so that means the query using lookup works.
+
+## Intersect results
+
+The next step in the BAP is to find those species in the buffer states that are not current observed in the state of interest (Virgina in this example).  This is accomplished by intersecting the two lists.  The R `dplyr` library offers a convenient way to do this using various table joins.
+
+```{r intersect-tables}
+# Join the two data sets, excluding TSNs from Virgina
+diff_species_buffer <- anti_join(va_nn_buffer_lookup, va_nn_lookup, by="tsn")
+diff_species_buffer
+
+```
+
+There are 601 non-natives species documented in states bordering this state that are not documented in the state itself in BISON.  This is consistent with the results from the webservice: [NISC "Bad Neighbor" Analysis](http://www.stingersplace.com/js/BISONBadNeighbor.html), that runs the analysis based on ITIS scientific names instead of TSN.  The difference can be explain through the removal of ambiguous TSN (homonymns and synonyms) done in the query here.
+
+Run the opposite join to confirm we get a different result for the species in Virginia that are not in the Buffer states.
+
+```{r species-in-west}
+# perform the opposite
+diff_species_va <- anti_join(va_nn_lookup, va_nn_buffer_lookup, by="tsn")
+diff_species_va
+```
+
+There is no direct comparison for this result, but it clarifies the results as being different and not related to the intersect itself.
+
+## Export Results
+
+The last step in the query is to export the results.  The export will run the intersect outlined above and result in a JSON dataset for portability and use in webservices.
+
+```{r}
+source("R/export_bad_neighbor_list.R")
+export_bad_neighbor_list(state_list = va_nn_lookup, buffer_list = va_nn_buffer_lookup, taxon = taxa$common_name[4], state_name = va_data$state_name)
+
+# check the result
+va_json <- jsonlite::fromJSON("result_json/Plants/Virginia_Plants_bad_neighbor.json")
+head(va_json)
+```
+
+
+The export works, so now we can put it all together to loop over all combinations of taxa and states.
+
+## Generate all states
+
+
+
+
