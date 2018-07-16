@@ -4,12 +4,11 @@ This is a repo for an R-based analysis of non-native species occurrences in the 
 The project uses the Biodiversity Information Serving Our Nation (BISON) species occurrence database https://bison.usgs.gov
 
 ## How do I get set up?
-This work is primarily R-based  
-The project is structured as follows  
-data: source data for the project  
-result_json: the result lists stored as JSON  
-R: the main R source code  
+This work is primarily R-based.  The project is structured as follows:  
+**data**: source data for the project  
+**R**: the main R source code  
+**result_json**: the result lists stored as JSON  
 bap_bad_neighbor_analysis.rmd (.html) documents the project
 
 ## Who do I talk to?
-Repo owner or admin: Enrique Monta?o (emontano@usgs.gov or tresmont@gmail.com)
+Repo owner or admin: Enrique Monta&ntilde;o (emontano@usgs.gov or tresmont@gmail.com)
