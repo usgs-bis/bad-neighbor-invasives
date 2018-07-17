@@ -1,6 +1,6 @@
 # require(tidyverse)
 
-state_occurrence_query <- function(fips_list, taxon) {
+state_bad_neighbor_query <- function(fips_list, taxon) {
     
     # build the string for the query
     qstring <- stringr::str_c(c("establishmentMeans:L48 AND computedStateFips:", fips_list,
