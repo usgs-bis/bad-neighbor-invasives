@@ -1,0 +1,392 @@
+---
+title: "Development of taxon group results"
+output: html_notebook
+---
+
+```{r}
+library(tidyverse)
+source("R/export_bad_neighbor_list.R")
+source("R/state_all_species_query.R")
+source("R/state_bad_neighbor_query.R")
+source("R/process_bad_neighbor_groups.R")
+source("R/generate_bn_count_map.R")
+```
+
+Process:
+
+State list
+1) Query individual state for a list of all species at a given taxonomic Class.  The Class list can be generated from ranks within the non-native species list with the understanding all Classes can be run;
+2) Intersect the results from 1 with the non-native list to find the non-native species currently found in the state;
+
+Buffer List
+3) Query adjacent states for a list of all species at a given taxonomic Class;
+4) Intersect the results from 3 with the non-native list to find the non-native species currently found in bordering states;
+
+Bad Neighbor List
+5) Intersect lists 2 and 4 to find a list of species in 4 (buffer states) not currently documented in 2 (state); this is the Bad Neighbor list.
+
+
+This portion of the develpment uses Annie's non-native species list to verify and qualify results from BISON.  The non-native list is not yet published, and will not be used in the final product.  However, the BISON query uses these data to indicate non-native status.
+
+### List of taxonomic Classes
+
+```{r review-taxonomy}
+# load the non-native master list from Annie
+nn_list <- readxl::read_excel("data/Non-native_Master_07_06_2018.xlsx")
+
+# reduce list to just L48 region, remove NA and undefined
+# there are 690 rows without taxonomy, so drop those for now
+nn_list <- nn_list %>% 
+    filter(Region == "L48" & !is.na(Class) & Class != "undefined")
+
+# look at the result
+head(nn_list)
+
+# find the distinct Class and count the number
+class_list <- nn_list %>% 
+    group_by(Class) %>% 
+    summarize(num_species = n()) %>% 
+    arrange(desc(num_species)) 
+# print the list
+class_list
+
+nn_list %>% 
+    group_by(Family) %>% 
+    summarize(num_species = n()) %>% 
+    arrange(desc(num_species)) 
+    
+
+```
+
+Taxonomy does not accurately describe how an end user might approach invasive species.  For example, at the Class level, there are 56 entries describing the non-native species.  A more intuitive approach might be to group species into informal classifications like tree/shrub.  The problem here is there is no one Family or Class that describes this sub-group; hence informal.  The USDA PLANTS database provides a habitat flag to describe the generalized growth habit of various species like tree, shrub, subshrub, or combinations thereof.  Therefore, a list of Families that incorporate tree/shrub can be developed from the PLANTS habitat.
+
+A series of families related by habit have been formed and extracted from the non-native list.  A bad neighbor analysis is run for each of these groups.
+
+### Tree/shrub Families
+
+```{r determine-trees}
+nn_list %>% 
+    filter(Family %in% c("Myrtaceae", "Fabaceae", "Ulmaceae", "Rosaceae")) %>% 
+    group_by(Family) %>% 
+    summarize(num_species = n()) %>% 
+    arrange(desc(num_species)) 
+```
+
+The following runs the analysis using the original, BISON-only query (uses establishmentMeans:L48).  The results are similar using the nn-native list, and using BISON only is reproduceable without needing external lists.
+
+```{r query-trees}
+
+# load lookup tables
+taxa <- readr::read_csv("data/tree_shrub_heirarchy_strings.csv")
+
+trees_results <- process_bad_neighbor_groups("tree_shrub", taxa = taxa)
+
+```
+
+Now we have results for just tree/shrubs. From this result we can use those maps to produce a visualized threat assessment.
+
+```{r extract-trees}
+# vector of tree/shrub families
+# trees <- c("Myrtaceae", "Fabaceae", "Ulmaceae", "Rosaceae")
+
+# comb_all_results_trees <- purrr::imap_dfr(trees_results, ~ tibble::tibble(
+#     taxon = .y,
+#     state_name = .x$bad_neighbor$state_name,
+#     bad_neighbor_count = .x$bad_neighbor$bad_neighbor_count,
+#     state_nn_species_count = .x$bad_neighbor$state_nn_species_count
+# ))
+# # save the output
+# readr::write_csv(comb_all_results_trees, "result_csv/trees_comb_result.csv")
+
+comb_all_results_trees <- readr::read_csv("result_csv/trees_comb_result.csv")
+
+# summarize the results to count all tree_shrub species per state
+comb_all_results_trees %>% 
+    group_by(state_name) %>% 
+    summarize(species_count = sum(bad_neighbor_count)) %>% 
+    # pass to the plot function
+    generate_bn_count_map(taxon = "Tree/Shrub")
+
+# save the output
+# out_name <- file.path("graphics", stringr::str_c("bad_neighbor_map_", "tree_shrub", ".png", sep = ""))
+# ggsave(out_name, height = 6, width = 9)
+
+# print a text report
+cat(generate_state_report_text("Alabama", group_name = "Tree/Shrub", comb_all_results_trees))
+
+```
+
+Now process the other types
+
+### Forb/Herbs
+
+```{r determine-forbs}
+nn_list %>% 
+    filter(Family %in% c("Asteraceae", "Pteridaceae", "Onagraceae", "Lamiaceae")) %>% 
+    group_by(Family) %>% 
+    summarize(num_species = n()) %>% 
+    arrange(desc(num_species)) 
+```
+
+```{r process-forbs}
+# load lookup tables
+# taxa <- readr::read_csv("data/forb_herb_heirarchy_strings.csv")
+
+# forbs_results <- process_bad_neighbor_groups("forbs_herbs", taxa = taxa)
+# 
+# comb_all_results_forbs <- purrr::imap_dfr(forbs_results, ~ tibble::tibble(
+#     taxon = .y,
+#     state_name = .x$bad_neighbor$state_name,
+#     bad_neighbor_count = .x$bad_neighbor$bad_neighbor_count,
+#     state_nn_species_count = .x$bad_neighbor$state_nn_species_count
+# ))
+# 
+# # save the result
+# readr::write_csv(comb_all_results_forbs, "result_csv/forbs_comb_result.csv")
+
+# load the saved file
+comb_all_results_forbs <- readr::read_csv("result_csv/forbs_comb_result.csv")
+
+
+# summarize the results to count all tree_shrub species per state
+comb_all_results_forbs %>% 
+    group_by(state_name) %>% 
+    summarize(species_count = sum(bad_neighbor_count)) %>% 
+    # pass to the plot function
+    generate_bn_count_map(taxon = "Forb/Herb")
+
+# save the output
+out_name <- file.path("graphics", stringr::str_c("bad_neighbor_map_", "forb_herbs", ".png", sep = ""))
+ggsave(out_name, height = 6, width = 9)
+
+```
+
+
+### Vines/ivy
+
+```{r}
+nn_list %>% 
+    filter(Family %in% c("Araceae", "Anacardiaceae", "Vitaceae")) %>% 
+    group_by(Family) %>% 
+    summarize(num_species = n()) %>% 
+    arrange(desc(num_species)) 
+```
+
+```{r process-vines}
+# load lookup tables
+# taxa <- readr::read_csv("data/ivy_vines_heirarchy_strings.csv")
+# 
+# ivy_results <- process_bad_neighbor_groups("ivy_vines", taxa = taxa)
+# 
+# comb_all_results_ivy <- purrr::imap_dfr(ivy_results, ~ tibble::tibble(
+#     taxon = .y,
+#     state_name = .x$bad_neighbor$state_name,
+#     bad_neighbor_count = .x$bad_neighbor$bad_neighbor_count,
+#     state_nn_species_count = .x$bad_neighbor$state_nn_species_count
+# ))
+# save the result
+# readr::write_csv(comb_all_results_ivy, "result_csv/ivy_comb_result.csv")
+
+# load the saved file
+comb_all_results_ivy <- readr::read_csv("result_csv/ivy_comb_result.csv")
+
+# summarize the results to count all tree_shrub species per state
+comb_all_results_ivy %>% 
+    group_by(state_name) %>% 
+    summarize(species_count = sum(bad_neighbor_count)) %>% 
+    # pass to the plot function
+    generate_bn_count_map(taxon = "Ivy/Vine")
+
+# save the output
+out_name <- file.path("graphics", stringr::str_c("bad_neighbor_map_", "ivy_vines", ".png", sep = ""))
+ggsave(out_name, height = 6, width = 9)
+
+```
+
+
+### Grasses
+
+```{r}
+nn_list %>% 
+    filter(Family %in% c("Cyperaceae", "Poaceae")) %>% 
+    group_by(Family) %>% 
+    summarize(num_species = n()) %>% 
+    arrange(desc(num_species)) 
+```
+
+```{r process-grass}
+# load lookup tables
+# taxa <- readr::read_csv("data/grasses_heirarchy_strings.csv")
+# 
+# grasses_results <- process_bad_neighbor_groups("grasses", taxa = taxa)
+# 
+# comb_all_results_grasses <- purrr::imap_dfr(grasses_results, ~ tibble::tibble(
+#     taxon = .y,
+#     state_name = .x$bad_neighbor$state_name,
+#     bad_neighbor_count = .x$bad_neighbor$bad_neighbor_count,
+#     state_nn_species_count = .x$bad_neighbor$state_nn_species_count
+# ))
+# 
+# # save the result
+# readr::write_csv(comb_all_results_grasses, "result_csv/grasses_comb_result.csv")
+
+# load the saved file
+comb_all_results_grasses <- readr::read_csv("result_csv/grasses_comb_result.csv")
+
+
+# summarize the results to count all tree_shrub species per state
+comb_all_results_grasses %>% 
+    group_by(state_name) %>% 
+    summarize(species_count = sum(bad_neighbor_count)) %>% 
+    # pass to the plot function
+    generate_bn_count_map(taxon = "Grass")
+
+# save the output
+out_name <- file.path("graphics", stringr::str_c("bad_neighbor_map_", "grasses", ".png", sep = ""))
+ggsave(out_name, height = 6, width = 9)
+
+```
+
+### Birds
+
+```{r proc-birds}
+# taxa <- readr::read_csv("data/heirarchy_strings.csv")
+
+# process the insect taxa, record 1
+# birds_results <- process_bad_neighbor_groups("bird", taxa = taxa[1,])
+# # 
+# comb_all_results_birds <- purrr::imap_dfr(birds_results, ~ tibble::tibble(
+#     taxon = .y,
+#     state_name = .x$bad_neighbor$state_name,
+#     bad_neighbor_count = .x$bad_neighbor$bad_neighbor_count,
+#     state_nn_species_count = .x$bad_neighbor$state_nn_species_count
+# ))
+# 
+# # save the result
+# readr::write_csv(comb_all_results_birds, "result_csv/birds_comb_result.csv")
+
+# load the saved file
+comb_all_results_birds <- readr::read_csv("result_csv/birds_comb_result.csv")
+
+
+# summarize the results to count all tree_shrub species per state
+comb_all_results_birds %>% 
+    group_by(state_name) %>% 
+    summarize(species_count = sum(bad_neighbor_count)) %>% 
+    # pass to the plot function
+    generate_bn_count_map(taxon = "Bird")
+
+# save the output
+out_name <- file.path("graphics", stringr::str_c("bad_neighbor_map_", "birds", ".png", sep = ""))
+ggsave(out_name, height = 6, width = 9)
+```
+
+
+
+### Insects
+
+```{r proc-insects}
+# load lookup tables
+# taxa <- readr::read_csv("data/heirarchy_strings.csv")
+# 
+# # process the insect taxa, record 3 
+# insects_results <- process_bad_neighbor_groups("insect", taxa = taxa[3,])
+# # 
+# comb_all_results_insects <- purrr::imap_dfr(insects_results, ~ tibble::tibble(
+#     taxon = .y,
+#     state_name = .x$bad_neighbor$state_name,
+#     bad_neighbor_count = .x$bad_neighbor$bad_neighbor_count,
+#     state_nn_species_count = .x$bad_neighbor$state_nn_species_count
+# ))
+# 
+# # save the result
+# readr::write_csv(comb_all_results_insects, "result_csv/insects_comb_result.csv")
+
+# load the saved file
+comb_all_results_insects <- readr::read_csv("result_csv/insects_comb_result.csv")
+
+
+# summarize the results to count all tree_shrub species per state
+comb_all_results_insects %>% 
+    group_by(state_name) %>% 
+    summarize(species_count = sum(bad_neighbor_count)) %>% 
+    # pass to the plot function
+    generate_bn_count_map(taxon = "Insect")
+
+# save the output
+# out_name <- file.path("graphics", stringr::str_c("bad_neighbor_map_", "insects", ".png", sep = ""))
+# ggsave(out_name, height = 6, width = 9)
+```
+
+
+## Summaries
+
+What contribution does each group make to the total of bad neighbor plants?  
+
+```{r summary-stats}
+# trees
+# sum_trees <- comb_all_results_trees %>%
+#     group_by(state_name) %>%
+#     summarize(bad_neighbor_count = sum(bad_neighbor_count), state_nn_species_count = sum(state_nn_species_count)) %>%
+#     mutate(family = "Tree/Shrub")
+# 
+# # forbs
+# sum_forbs <- comb_all_results_forbs %>%
+#     group_by(state_name) %>%
+#     summarize(bad_neighbor_count = sum(bad_neighbor_count), state_nn_species_count = sum(state_nn_species_count)) %>%
+#     mutate(family = "Forb/Herb")
+# 
+# # grasses
+# sum_grasses <- comb_all_results_grasses %>%
+#     group_by(state_name) %>%
+#     summarize(bad_neighbor_count = sum(bad_neighbor_count), state_nn_species_count = sum(state_nn_species_count)) %>%
+#     mutate(family = "Grass")
+# 
+# # vines
+# sum_ivy <- comb_all_results_ivy %>%
+#     group_by(state_name) %>%
+#     summarize(bad_neighbor_count = sum(bad_neighbor_count), state_nn_species_count = sum(state_nn_species_count)) %>%
+#     mutate(family = "Ivy/Vine")
+# 
+# # birds
+# sum_birds <- comb_all_results_birds %>%
+#     group_by(state_name) %>%
+#     summarize(bad_neighbor_count = sum(bad_neighbor_count), state_nn_species_count = sum(state_nn_species_count)) %>%
+#     mutate(family = "Bird")
+# 
+# # insects
+# sum_insects <- comb_all_results_insects %>%
+#     group_by(state_name) %>%
+#     summarize(bad_neighbor_count = sum(bad_neighbor_count), state_nn_species_count = sum(state_nn_species_count)) %>%
+#     mutate(family = "Insect")
+# 
+# 
+# # combine all
+# comb_all_results <- bind_rows(sum_trees, sum_ivy, sum_forbs, sum_grasses, sum_birds, sum_insects)
+# 
+# # save the results
+# readr::write_csv(comb_all_results, "result_csv/combine_all_plant_bad_neighbor.csv")
+
+# load the results
+comb_all_results <- readr::read_csv("result_csv/combine_all_plant_bad_neighbor.csv")
+
+comb_all_results %>% 
+    group_by(family) %>% # group by family
+    summarise(contrib_bad_neighbor = sum(bad_neighbor_count)) %>%  # calculate the sum of each group
+    mutate(pct_contrib_bad_neighbor = (contrib_bad_neighbor / sum(contrib_bad_neighbor) * 100)) %>% 
+    ggplot(aes(x = reorder(family, pct_contrib_bad_neighbor), y = pct_contrib_bad_neighbor)) +
+    geom_bar(stat = "identity") +
+    # geom_text(aes(label = paste0(pct_contrib_bad_neighbor, "%"), y = pct_contrib_bad_neighbor),
+            # vjust = 1.4, size = 5, color = "white") +
+    labs(title = "Threat of Plant Family Bad Neighbors",
+         x = "Plant Family Bad Neighbor",
+         y = "Percent Contribution") +
+    # ggthemes::theme_tufte()
+    theme_bw() +
+    theme(plot.title = ggplot2::element_text(size = ggplot2::rel(1.5)))
+    
+```
+
+
+
+
