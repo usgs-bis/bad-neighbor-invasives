@@ -5,118 +5,224 @@ date: "July-1-2018"
 output: html_notebook
 ---
 
-```{r}
+```{r libraries, message=FALSE, warning=FALSE, results='hide'}
 # libraries for the notebook
 library(tidyverse)
+source("R/generate_bn_count_map.R")
 ```
 
 
-## Project Overview
+## Summary
 
-The purpose of this project is to create a state-by-state list of regulated non-native (i.e. invasive) species found in adjacent states, but not yet documented in the state of interest.
+There are approximately 6000 non-native species (plant and animal) currently documented in the Lower 48 United States.  Not every species is found or will be found in a given state.  The purpose of this provisional biogeographic analysis package is to create a state-by-state list of regulated non-native (i.e. invasive) species found in adjacent states, but not yet documented in the state of interest.  Stakeholders in states can use the "Bad Neighbor" analysis to see a list of species of concern to develop monitoring and management strategies before invasion.
 
-The analysis begins with a query to BISON for the state of interest, then replicating the query for the bordering states.
+The Bad Neighbor analysis can be run on any type of taxon for which the Biodiversity Information Serving Our Nation (BISON) species occurrence database has records.  For the sake of illustration, a subset of taxonomic classes and families were selected to demonstrate the analysis.  Those groups include species of high concern in the plant, animal and insect kingdoms.  Groups chosen were:
 
-## Testing
+1) Specific groups of plants:  
+    - Tree/Shrub  
+    - Grass  
+    - Ivy/Vines  
+    - Forb/Herb
+2) Insects
+3) Birds
 
-The main query source code is located in `"R/state_occurrence_query.R"`
 
-The query requires two parameters
-1) A single state FIPS code or a parenthetical group of FIPS codes.  Pairs of state FIPS codes and surrounding states are pre-developed and stored in `data/state_lookup.csv`.  Note: the list includes the Distict of Columbia;
-2) A string hierarchy_homonym_string in the form: "*\\-179913\\-*".  Again, a predefined list is stored in: `data/heirarchy_strings.csv`.  The list of taxa is currently restricted to the best represented taxa in BISON.
+### Processing steps
 
+The following outlines the various stages of running the Bad Neighbor BAP.  The process is developed in three primary steps:
+
+State list
+1) Query individual state for a list of all species at a given taxonomic group.  The species group list can be generated from any valid taxonomic group;
+
+Buffer States List
+2) Query adjacent states for a list of all species at a given taxonomic group;
+
+Bad Neighbor List
+3) Intersect lists 1 and 2 to find a list of species in 2 (buffer states) not currently documented in 1 (state); this is the Bad Neighbor list.
+
+The processing is done in several R scripts stored in the `R` directory:
+
+- `process_bad_neighbor_groups.R` is a wrapper function executing all necessary steps;
+- `state_bad_neighbor_query.R` is the primary BISON query and parsing function to develop both the state and buffer state lists of non-native species;
+- `state_all_species_query.R` is a second BISON query/parsing function returning all species in a given state.  This is included for possible future work, but the results are not used here;
+- `export_bad_neighbor_list.R` is a wrapper function to run the intersect between states and the buffer states to create the bad neighbor list and export the results to JSON. Result files are located in the `results_json` directory;
+- `generate_bn_count_map.R` is a function to generate a chloropleth map of results.
+
+
+## Results
+
+```{r echo=FALSE}
+comb_all_results <- readr::read_csv("result_csv/combine_all_plant_bad_neighbor.csv")
+```
+
+There are a total of `r sum(comb_all_results$bad_neighbor_count)` for the Lower 48 United States.  The table below describes the results by taxon group as total and the relative contribution, or threat, for each group.
+
+```{r summary-results-table, echo=FALSE}
+comb_all_results %>% 
+    group_by(family) %>% # group by family
+    summarise(contrib_bad_neighbor = sum(bad_neighbor_count)) %>%  # calculate the sum of each group
+    mutate(pct_contrib_bad_neighbor = (contrib_bad_neighbor / sum(contrib_bad_neighbor) * 100)) %>% 
+    arrange(pct_contrib_bad_neighbor) %>% 
+    rename(`Taxon Group` = family,
+           `Number of Bad Neighbors` = contrib_bad_neighbor,
+           `Pct of Bad Neighbor` = pct_contrib_bad_neighbor)
+```
+
+The chart below illustrates the realitve threat from each of the taxon groups.
+
+```{r summary-results-chart, echo=FALSE}
+comb_all_results %>% 
+    group_by(family) %>% # group by family
+    summarise(contrib_bad_neighbor = sum(bad_neighbor_count)) %>%  # calculate the sum of each group
+    mutate(pct_contrib_bad_neighbor = (contrib_bad_neighbor / sum(contrib_bad_neighbor) * 100)) %>% 
+    ggplot(aes(x = reorder(family, pct_contrib_bad_neighbor), y = pct_contrib_bad_neighbor)) +
+    geom_bar(stat = "identity") +
+    # geom_text(aes(label = paste0(prettyNum(pct_contrib_bad_neighbor, digits = 3), "%"), 
+                  # y = pct_contrib_bad_neighbor),
+                  # vjust = 1.4, size = 4, color = "white") +
+    labs(title = "Threat of Plant Family Bad Neighbors",
+         x = "Plant Family Bad Neighbor",
+         y = "Percent Contribution") +
+    # ggthemes::theme_tufte()
+    theme_bw() +
+    theme(plot.title = ggplot2::element_text(size = ggplot2::rel(1.5)))
+```
+
+The results indicate the Forb/Herb group present the greatest overall threat, with Tree/Shrub, Insects, and Grass close behind.  Recall, a Bad Neighbor is defined as a species that is not yet documented in a given state.  Therefore, these results suggest many states are not yet invaded.  Birds are a smaller Bad Neighbor, possibly because of migration and ease of movement.  The low (almost zero) results for Ivy/Vines suggest the species in this group *already* occur in the states.
+
+
+## Maps
+
+Maps can help describe the problem and where it is occurring.  A choropleth map describes the location of the states under greatest threat.  The results of the Bad Neighbor Analysis contain the number of species in adjacent states that are not currently documented in the state of interest.  Therefore, plotting this count as a color intensity describes those states that are under most threat.  The first map is for all groups combined.
+
+```{r threat-map, echo=FALSE}
+comb_all_results %>% 
+    group_by(state_name) %>% 
+    summarise(species_count = sum(bad_neighbor_count)) %>% 
+    generate_bn_count_map(taxon = "All Groups")
+```
+
+The summary map shows all states have Bad Neighbors from some group.  The areas of red in the map indicate those states under the greatest threat from its neighbors; that is, there are an increasing number of non-native species in neighboring states that are not yet documented in the state itself.  The package provides a list of the actual bad neighbor species a land manager in the state might use to prioritize monitoring.
+
+States that are colored green present a more nuanced result.  Most simply, a lower number of bad neighbors can indicate either a lack of non-native species.  However, a more realistic interpretation is the state is already host to most of the non-native species present in adjacent states.  Florida, for example, is dark green and only has 171 Bad Neighbors, but is known to already be host to many non-native species.
+
+
+### Taxon Group Results
+
+The result maps from each individual taxon group are presented below in descending order.
+
+Forb/Herb
+
+```{r forb-herb-map, echo=FALSE, message=FALSE, warning=FALSE}
+comb_all_results_forbs <- readr::read_csv("result_csv/forbs_comb_result.csv")
+
+# summarize the results to count all tree_shrub species per state
+comb_all_results_forbs %>% 
+    group_by(state_name) %>% 
+    summarize(species_count = sum(bad_neighbor_count)) %>% 
+    # pass to the plot function
+    generate_bn_count_map(taxon = "Forb/Herb")
+```
+
+Tree/Shrub
+
+```{r tree-shrib-map, echo=FALSE, message=FALSE, warning=FALSE}
+comb_all_results_trees <- readr::read_csv("result_csv/trees_comb_result.csv")
+
+# summarize the results to count all tree_shrub species per state
+comb_all_results_trees %>% 
+    group_by(state_name) %>% 
+    summarize(species_count = sum(bad_neighbor_count)) %>% 
+    # pass to the plot function
+    generate_bn_count_map(taxon = "Tree/Shrub")
+```
+
+Insect
+
+```{r insect-map, echo=FALSE, message=FALSE, warning=FALSE}
+# load the saved file
+comb_all_results_insects <- readr::read_csv("result_csv/insects_comb_result.csv")
+
+
+# summarize the results to count all tree_shrub species per state
+comb_all_results_insects %>% 
+    group_by(state_name) %>% 
+    summarize(species_count = sum(bad_neighbor_count)) %>% 
+    # pass to the plot function
+    generate_bn_count_map(taxon = "Insect")
+```
+
+Grass
+
+```{r grass-map, echo=FALSE, message=FALSE, warning=FALSE}
+# load the saved file
+comb_all_results_grasses <- readr::read_csv("result_csv/grasses_comb_result.csv")
+
+# summarize the results to count all tree_shrub species per state
+comb_all_results_grasses %>% 
+    group_by(state_name) %>% 
+    summarize(species_count = sum(bad_neighbor_count)) %>% 
+    # pass to the plot function
+    generate_bn_count_map(taxon = "Grass")
+```
+
+
+Birds
+
+```{r bird-map, echo=FALSE, message=FALSE, warning=FALSE}
+# load the saved file
+comb_all_results_birds <- readr::read_csv("result_csv/birds_comb_result.csv")
+
+# summarize the results to count all tree_shrub species per state
+comb_all_results_birds %>% 
+    group_by(state_name) %>% 
+    summarize(species_count = sum(bad_neighbor_count)) %>% 
+    # pass to the plot function
+    generate_bn_count_map(taxon = "Bird")
+```
+
+
+Ivy/Vine
+
+```{r ivy-map, echo=FALSE, message=FALSE, warning=FALSE}
+# load the saved file
+comb_all_results_ivy <- readr::read_csv("result_csv/ivy_comb_result.csv")
+
+# summarize the results to count all tree_shrub species per state
+comb_all_results_ivy %>% 
+    group_by(state_name) %>% 
+    summarize(species_count = sum(bad_neighbor_count)) %>% 
+    # pass to the plot function
+    generate_bn_count_map(taxon = "Ivy/Vine")
+```
+
+
+### Demonstration of state-level results
+
+The following is an illustration of how specific taxon group results might be presented to a user when a particular state is selected.  The user would "click", or select, a state of interest, and be presented with a summary of the results and list of Bad Neighbor species in the taxon group.
+
+The `generate_state_report.R` function was written to produce the text:
 
 ```{r}
-# compile the query query code
-source("R/state_occurrence_query.R")
+source("R/generate_state_report_text.R")
 
-# run the code for Virginia
-# 51 FIPS code for Virginia
-# list of surrounding state FIPS codes
-buff_states <- "(24 11 37 47 21 54)"
-
-# "*\\-202422\\-*" hierarchy_homonym_string for all plants
-va_nn <- state_occurrence_query(fips_list = 51, taxon = "*\\-202422\\-*")
-
-# view the result
-# va_nn
-
-buff_nn <- state_occurrence_query(fips_list = buff_states, taxon = "*\\-202422\\-*")
-
+# print a text report
+cat(generate_state_report_text("Colorado", group_name = "Insect", comb_all_results_trees))
 ```
 
-## Using lookup tables
+The species list is stored as json in the `results_json` directory.  The data were generated on a taxon group-by-group basis, then by state.  The separate taxon group json files need to be combined into a single list for plant groups.  The insect group will be used for illustration since this is only a single taxon group.
 
-We can now test the code using lookup tables.
-
-First, the states:
-
-```{r state-codes}
-state_codes <- read_csv("data/state_lookup.csv")
-state_codes
-```
-
-Next, the hierarchy homonym strings:
-
-```{r taxon-strings}
-taxa <- read_csv("data/heirarchy_strings.csv")
-taxa
-```
-
-Using the same example state above, Virgina, we can replicate the result using the lookup tables as input to the query.
-
-```{r lookup-test}
-
-va_data <- filter(state_codes, state_name == "Virginia")
-va_data
-
-va_nn_lookup <- state_occurrence_query(fips_list = va_data$state_fips, taxon = taxa$hierarchy_homonym_string[4])
-va_nn_buffer_lookup <- state_occurrence_query(fips_list = va_data$buffer_fips, taxon = taxa$hierarchy_homonym_string[4])
-```
-
-We are getting the same result from both versions of the data, so that means the query using lookup works.
-
-## Intersect results
-
-The next step in the BAP is to find those species in the buffer states that are not current observed in the state of interest (Virgina in this example).  This is accomplished by intersecting the two lists.  The R `dplyr` library offers a convenient way to do this using various table joins.
-
-```{r intersect-tables}
-# Join the two data sets, excluding TSNs from Virgina
-diff_species_buffer <- anti_join(va_nn_buffer_lookup, va_nn_lookup, by="tsn")
-diff_species_buffer
-
-```
-
-There are 601 non-natives species documented in states bordering this state that are not documented in the state itself in BISON.  This is consistent with the results from the webservice: [NISC "Bad Neighbor" Analysis](http://www.stingersplace.com/js/BISONBadNeighbor.html), that runs the analysis based on ITIS scientific names instead of TSN.  The difference can be explain through the removal of ambiguous TSN (homonymns and synonyms) done in the query here.
-
-Run the opposite join to confirm we get a different result for the species in Virginia that are not in the Buffer states.
-
-```{r species-in-west}
-# perform the opposite
-diff_species_va <- anti_join(va_nn_lookup, va_nn_buffer_lookup, by="tsn")
-diff_species_va
-```
-
-There is no direct comparison for this result, but it clarifies the results as being different and not related to the intersect itself.
-
-## Export Results
-
-The last step in the query is to export the results.  The export will run the intersect outlined above and result in a JSON dataset for portability and use in webservices.
+The final result can combine the list of scientific names with a link to BISON for more information.
 
 ```{r}
-source("R/export_bad_neighbor_list.R")
-export_bad_neighbor_list(state_list = va_nn_lookup, buffer_list = va_nn_buffer_lookup, taxon = taxa$common_name[4], state_name = va_data$state_name)
-
-# check the result
-va_json <- jsonlite::fromJSON("result_json/Plants/Virginia_Plants_bad_neighbor.json")
-head(va_json)
+species_list <- jsonlite::fromJSON("result_json/insect/Insecta/Colorado_Insecta_bad_neighbor.json")
+species_list$species_list %>% 
+    select(name, tsn) %>% 
+    mutate(link = str_c("<a href ='https://bison.usgs.gov/index.jsp?scientificName=",
+                        name, 
+                        "&ITIS=itis' target='_blank'>")) %>% 
+    rename("ScientificName" = name, "TSN" = tsn)
 ```
-
-
-The export works, so now we can put it all together to loop over all combinations of taxa and states.
-
-## Generate all states
-
 
 
 
