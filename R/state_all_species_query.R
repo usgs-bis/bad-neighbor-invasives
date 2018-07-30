@@ -1,11 +1,21 @@
 
 
-
+#' state_all_species_query
+#' 
+#' A BISON query/parsing function returning all species in a given state.  This is included for possible future work, but the results are not used here;
+#'
+#' @param fips_list a single state two-digit FIPS code or a parenthetical group of FIPS codes.  Pairs of state FIPS codes and surrounding states are pre-developed and stored in `data/state_lookup.csv`.  Note: the list includes the Distict of Columbia;
+#' @param taxon a string hierarchy_homonym_string in the form: "*\\-179913\\-*".  Again, a predefined list is stored in: `data/heirarchy_strings.csv`.  The list of taxa is currently restricted to the best represented taxa in BISON.
+#' @param state_name a string name of the state to process.
+#'
+#' @return a tibble with the name of the state, the overall occurrence count for all species in the taxon, and a count of the number of species in the taxon in the state.
+#' @export
+#'
+#' @examples
+#' all_species <- state_all_species_query(fips_list = 51, taxon = "*\\-179913\\-*", state_name = "Virginia")
 state_all_species_query <- function(fips_list, taxon, state_name) {
     
-    
-    # https://bison.usgs.gov/solr/occurrences/select/?q=computedStateFips:51%20AND%20hierarchy_homonym_string%3A%2A%5C-202422%5C-%2A%20AND%20scientificName:/[A-Za-z]*[%20]{1,1}[A-Za-z]*/&rows=0&facet=true&facet.field=ITISscientificName&facet.limit=-1&facet.mincount=1&wt=json
-    
+    # build the query string from arguments
     qstring <- stringr::str_c(c("computedStateFips:", fips_list,
                                 " AND hierarchy_homonym_string:", taxon),
                                 # " AND scientificName:/[A-Za-z]\\*[%20]\\{1,1\\}[A-Za\\-z]*/"),

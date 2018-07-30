@@ -1,5 +1,27 @@
 
 
+#' export_bad_neighbor_list
+#'
+#' @param state_list a list of species scientific names with associated TSN for a given state.  This should be the output from the state_bad_nighbor_query function for a single state.
+#' @param buffer_list a list of species scientific names with associated TSN for a group of buffer states.  This should be the output from the state_bad_nighbor_query function for a group of buffer states. 
+#' @param state_name the name of the state to process
+#' @param taxon the name of the taxon to process
+#' @param group_name (Optional) name of a group or taxa (e.g. Grasses) to process.
+#'
+#' @return A tibble (data frame) with the summary of the results for each state, including the total of bad neighbors, the associated total occurrence of non-native species, and the number of non-native species already documented in the state.
+#' @export
+#'
+#' @examples
+#' 51 FIPS code for Virginia
+#' list of surrounding state FIPS codes
+#' buff_states <- "(24 11 37 47 21 54)"
+#' "*\\-202422\\-*" hierarchy_homonym_string for all plants
+#' va_nn <- state_bad_neighbor_query(fips_list = 51, taxon = "*\\-202422\\-*")
+#'
+#' buff_nn <- state_bad_neighbor_query(fips_list = buff_states, taxon = "*\\-202422\\-*")
+#'
+#' export_bad_neighbor_list(state_list = va_nn, buffer_list = va_nn_buffer, taxon = taxon = "*\\-202422\\-*", state_name = "Virginia")
+#' 
 export_bad_neighbor_list <- function(state_list, buffer_list, state_name, taxon, group_name = NULL) {
     
     # make sure the lists are not empty

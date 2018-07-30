@@ -1,6 +1,22 @@
 # load the required library
 require(tidyverse)
 
+#' generate_state_report_text
+#' 
+#' This is a sample function for generating summary statistics and text for bad neighbor results.
+#'
+#' @param target_state a string.  The name of the state to process
+#' @param group_name a string.  The name of the taxonomic group to process.
+#' @param df a tibble.  Summary results from the process_bad_neighbor_group function.
+#'
+#' @return a string. A paragraph of formatted text.
+#' @export
+#'
+#' @examples
+#' # load the saved file
+#' comb_all_results_insects <- readr::read_csv("result_csv/insects_comb_result.csv")
+#'
+#' generate_state_report_text("Colorado", group_name = "Insect", comb_all_results_insects)
 generate_state_report_text <- function(target_state, group_name, df) {
     # summarize the data frame
     sum_df <- df %>% 

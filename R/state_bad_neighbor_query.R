@@ -1,19 +1,22 @@
 
 
-#' Title
+#' state_bad_neighbor_list
+#' 
+#' The primary BISON query and parsing function to develop both the state and buffer state lists of non-native species.
 #'
-#' @param fips_list 
-#' @param taxon 
-#' @param useEstMeans 
-#'
-#'   The query requires two parameters
-# 1) A single state FIPS code or a parenthetical group of FIPS codes.  Pairs of state FIPS codes and surrounding states are pre-developed and stored in `data/state_lookup.csv`.  Note: the list includes the Distict of Columbia;
-# 2) A string hierarchy_homonym_string in the form: "*\\-179913\\-*".  Again, a predefined list is stored in: `data/heirarchy_strings.csv`.  The list of taxa is currently restricted to the best represented taxa in BISON.
+#' @param fips_list a single state two-digit FIPS code or a parenthetical group of FIPS codes.  Pairs of state FIPS codes and surrounding states are pre-developed and stored in `data/state_lookup.csv`.  Note: the list includes the Distict of Columbia;
+#' @param taxon A string hierarchy_homonym_string in the form: "*\\-179913\\-*".  Predefined lists are stored in: `data/heirarchy_strings.csv`.  The list of taxa is currently restricted to the best represented taxa in BISON.
+#' @param useEstMeans (Optional) flag to use the non-native flag in BISON.  Defaults to TRUE.
 # 
-#' @return
+#' @return a tibble.  A data frame with a list of bad neighbor species with associated TSN.
 #' @export
 #'
 #' @examples
+#' va_nn <- state_bad_neighbor_query(fips_list = 51, taxon = "*\\-202422\\-*")
+#' 
+#' # for buffer states 
+#' buff_states <- "(24 11 37 47 21 54)"
+#' buff_nn <- state_bad_neighbor_query(fips_list = buff_states, taxon = "*\\-202422\\-*")
 state_bad_neighbor_query <- function(fips_list, taxon, useEstMeans = TRUE) {
     
     # test for using establishmentMeans

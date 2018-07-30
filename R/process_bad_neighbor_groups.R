@@ -3,6 +3,24 @@ source("R/export_bad_neighbor_list.R")
 source("R/state_all_species_query.R")
 source("R/state_bad_neighbor_query.R")
 
+#' process_bad_neighbor_groups
+#' 
+#' This function is a wrapper function executing all necessary steps in generating the lists of bad neighbors.
+#'
+#' @param group_name A string. The informal name of the taxon group to process (e.g. "Tree/Shrub")
+#' @param taxa A tibble. A table with a the name of the taxon to process along with the associated heirarchy homonym TSN string. The tibbles are typically loded from lookup tables in the "data" directory (see example). The heirarchy homonym TSN string can also be obtained from the [ITIS](https://www.itis.gov) website by searching for the taxon. 
+#'
+#' @return A list of tibbles (data frames) containing the summary results for the Bad Neighbor Analysis from the export_bad_neighbor_list() function, and a summary tibble for all species currently documented in states from the state_all_species_query() function.
+#' 
+#' @export
+#'
+#' @examples
+#' 
+#' # load lookup tables
+#' taxa <- readr::read_csv("data/tree_shrub_heirarchy_strings.csv")
+#'
+#' trees_results <- process_bad_neighbor_groups("tree_shrub", taxa = taxa)
+#' 
 process_bad_neighbor_groups <- function(group_name, taxa) {
     
     # open the state codes

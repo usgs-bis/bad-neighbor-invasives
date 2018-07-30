@@ -1,5 +1,22 @@
 
 
+#' generate_bn_count_map
+#' 
+#' A function to generate a chloropleth map of results.
+#'
+#' @param df a tibble.  Typically the results from the process_bad_neighbor_groups function
+#' @param taxon a string.  The [often informal] name of the taxon group to process (e.g. "Tree/Shrub")
+#'
+#' @return a ggplot object with a chloropleth map of the bad neighbor counts for states.
+#'
+#' @export
+#'
+#' @examples
+#' comb_all_results_forbs %>% 
+#'    group_by(state_name) %>% 
+#'    summarize(species_count = sum(bad_neighbor_count)) %>% 
+#'    # pass to the plot function
+#'    generate_bn_count_map(taxon = "Tree/Shrub")
 generate_bn_count_map <- function(df, taxon) {
     # open the spatial data for US states
     us_states <- sf::st_as_sf(maps::map("state", plot = FALSE, fill = TRUE))
