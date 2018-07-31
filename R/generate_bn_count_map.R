@@ -12,6 +12,9 @@
 #' @export
 #'
 #' @examples
+#' Load a results file from process_bad_neighbor_groups() function
+#' comb_all_results_forbs <- readr::read_csv("result_csv/forbs_comb_result.csv")
+#' 
 #' comb_all_results_forbs %>% 
 #'    group_by(state_name) %>% 
 #'    summarize(species_count = sum(bad_neighbor_count)) %>% 
