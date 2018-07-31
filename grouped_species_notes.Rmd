@@ -156,8 +156,8 @@ comb_all_results_forbs %>%
     generate_bn_count_map(taxon = "Forb/Herb")
 
 # save the output
-out_name <- file.path("graphics", stringr::str_c("bad_neighbor_map_", "forb_herbs", ".png", sep = ""))
-ggsave(out_name, height = 6, width = 9)
+# out_name <- file.path("graphics", stringr::str_c("bad_neighbor_map_", "forb_herbs", ".png", sep = ""))
+# ggsave(out_name, height = 6, width = 9)
 
 ```
 
@@ -198,8 +198,8 @@ comb_all_results_ivy %>%
     generate_bn_count_map(taxon = "Ivy/Vine")
 
 # save the output
-out_name <- file.path("graphics", stringr::str_c("bad_neighbor_map_", "ivy_vines", ".png", sep = ""))
-ggsave(out_name, height = 6, width = 9)
+# out_name <- file.path("graphics", stringr::str_c("bad_neighbor_map_", "ivy_vines", ".png", sep = ""))
+# ggsave(out_name, height = 6, width = 9)
 
 ```
 
@@ -242,8 +242,8 @@ comb_all_results_grasses %>%
     generate_bn_count_map(taxon = "Grass")
 
 # save the output
-out_name <- file.path("graphics", stringr::str_c("bad_neighbor_map_", "grasses", ".png", sep = ""))
-ggsave(out_name, height = 6, width = 9)
+# out_name <- file.path("graphics", stringr::str_c("bad_neighbor_map_", "grasses", ".png", sep = ""))
+# ggsave(out_name, height = 6, width = 9)
 
 ```
 
@@ -277,8 +277,8 @@ comb_all_results_birds %>%
     generate_bn_count_map(taxon = "Bird")
 
 # save the output
-out_name <- file.path("graphics", stringr::str_c("bad_neighbor_map_", "birds", ".png", sep = ""))
-ggsave(out_name, height = 6, width = 9)
+# out_name <- file.path("graphics", stringr::str_c("bad_neighbor_map_", "birds", ".png", sep = ""))
+# ggsave(out_name, height = 6, width = 9)
 ```
 
 
