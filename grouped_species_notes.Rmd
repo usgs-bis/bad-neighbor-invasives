@@ -1,9 +1,11 @@
 ---
 title: "Development of taxon group results"
+author: "Enrique L. Monta&ntilde;o, PhD"
+date: "Started: July-1-2018"
 output: html_notebook
 ---
 
-```{r}
+```{r libraries, message=FALSE, warning=FALSE, results='hide'}
 library(tidyverse)
 source("R/export_bad_neighbor_list.R")
 source("R/state_all_species_query.R")
@@ -12,80 +14,37 @@ source("R/process_bad_neighbor_groups.R")
 source("R/generate_bn_count_map.R")
 ```
 
-Process:
+This notebook provides an overview of the process of developing taxonomic groups for inclusion in the Bad Neighbor Analysis.  This portion of the development uses a USGS non-native species list to verify and qualify results from BISON.  The non-native list is not yet published, and will not be used in the final product.  However, the BISON query uses these data to indicate non-native status.
 
-State list
-1) Query individual state for a list of all species at a given taxonomic Class.  The Class list can be generated from ranks within the non-native species list with the understanding all Classes can be run;
-2) Intersect the results from 1 with the non-native list to find the non-native species currently found in the state;
+## List of taxonomic Classes
 
-Buffer List
-3) Query adjacent states for a list of all species at a given taxonomic Class;
-4) Intersect the results from 3 with the non-native list to find the non-native species currently found in bordering states;
+Taxonomy does not accurately describe how an end user might approach grouping invasive species.  For example, at the Class level, there are 56 entries describing the non-native species.  A more intuitive approach might be to group species into informal classifications like tree/shrub.  The problem here is there is no one Family or Class that describes this sub-group; hence informal.  
 
-Bad Neighbor List
-5) Intersect lists 2 and 4 to find a list of species in 4 (buffer states) not currently documented in 2 (state); this is the Bad Neighbor list.
+The [USDA PLANTS](https://www.plants.usda.gov/about_plants.html) database provides a habitat flag to describe the generalized growth habit of various species like tree, shrub, subshrub, or combinations thereof.  Therefore, a list of taxonomic Families that incorporate tree/shrub can be developed from the PLANTS habitat.
 
+A series of families related by habit have been formed and a bad neighbor analysis is run for each of these groups.  This portion of the development uses a USGS non-native species list to verify and qualify results from BISON.  The non-native list is not yet published, and will not be used in the final product.  However, the BISON query uses these data to indicate non-native status.
 
-This portion of the develpment uses Annie's non-native species list to verify and qualify results from BISON.  The non-native list is not yet published, and will not be used in the final product.  However, the BISON query uses these data to indicate non-native status.
+Each of the informal groups listed below have an associated lookup table for the hierarchy homonym strings: "data/forb_herb_hierarchy_strings.csv", "data/grasses_hierarchy_strings.csv", "data/ivy_vines_hierarchy_strings.csv", "data/tree_shrub_hierarchy_strings.csv"
 
-### List of taxonomic Classes
-
-```{r review-taxonomy}
-# load the non-native master list from Annie
-nn_list <- readxl::read_excel("data/Non-native_Master_07_06_2018.xlsx")
-
-# reduce list to just L48 region, remove NA and undefined
-# there are 690 rows without taxonomy, so drop those for now
-nn_list <- nn_list %>% 
-    filter(Region == "L48" & !is.na(Class) & Class != "undefined")
-
-# look at the result
-head(nn_list)
-
-# find the distinct Class and count the number
-class_list <- nn_list %>% 
-    group_by(Class) %>% 
-    summarize(num_species = n()) %>% 
-    arrange(desc(num_species)) 
-# print the list
-class_list
-
-nn_list %>% 
-    group_by(Family) %>% 
-    summarize(num_species = n()) %>% 
-    arrange(desc(num_species)) 
-    
-
-```
-
-Taxonomy does not accurately describe how an end user might approach invasive species.  For example, at the Class level, there are 56 entries describing the non-native species.  A more intuitive approach might be to group species into informal classifications like tree/shrub.  The problem here is there is no one Family or Class that describes this sub-group; hence informal.  The USDA PLANTS database provides a habitat flag to describe the generalized growth habit of various species like tree, shrub, subshrub, or combinations thereof.  Therefore, a list of Families that incorporate tree/shrub can be developed from the PLANTS habitat.
-
-A series of families related by habit have been formed and extracted from the non-native list.  A bad neighbor analysis is run for each of these groups.
 
 ### Tree/shrub Families
 
-```{r determine-trees}
-nn_list %>% 
-    filter(Family %in% c("Myrtaceae", "Fabaceae", "Ulmaceae", "Rosaceae")) %>% 
-    group_by(Family) %>% 
-    summarize(num_species = n()) %>% 
-    arrange(desc(num_species)) 
-```
+The following runs the analysis using the original, BISON-only query (uses establishmentMeans:L48).  The results are similar using an as yet unpublished USGS list of non-native species, and using BISON only is reproducible without needing external lists.
 
-The following runs the analysis using the original, BISON-only query (uses establishmentMeans:L48).  The results are similar using the nn-native list, and using BISON only is reproduceable without needing external lists.
-
-```{r query-trees}
+```{r query-trees, message=FALSE, warning=FALSE, eval=FALSE}
+# tree/shrub Families c("Myrtaceae", "Fabaceae", "Ulmaceae", "Rosaceae")
 
 # load lookup tables
-taxa <- readr::read_csv("data/tree_shrub_heirarchy_strings.csv")
+taxa <- readr::read_csv("data/tree_shrub_hierarchy_strings.csv")
 
+# run the analysis
 trees_results <- process_bad_neighbor_groups("tree_shrub", taxa = taxa)
 
 ```
 
 Now we have results for just tree/shrubs. From this result we can use those maps to produce a visualized threat assessment.
 
-```{r extract-trees}
+```{r extract-trees, message=FALSE, warning=FALSE}
 # vector of tree/shrub families
 # trees <- c("Myrtaceae", "Fabaceae", "Ulmaceae", "Rosaceae")
 
@@ -98,6 +57,7 @@ Now we have results for just tree/shrubs. From this result we can use those maps
 # # save the output
 # readr::write_csv(comb_all_results_trees, "result_csv/trees_comb_result.csv")
 
+# load in the saved results
 comb_all_results_trees <- readr::read_csv("result_csv/trees_comb_result.csv")
 
 # summarize the results to count all tree_shrub species per state
@@ -120,17 +80,11 @@ Now process the other types
 
 ### Forb/Herbs
 
-```{r determine-forbs}
-nn_list %>% 
-    filter(Family %in% c("Asteraceae", "Pteridaceae", "Onagraceae", "Lamiaceae")) %>% 
-    group_by(Family) %>% 
-    summarize(num_species = n()) %>% 
-    arrange(desc(num_species)) 
-```
 
-```{r process-forbs}
+```{r process-forbs, message=FALSE, warning=FALSE}
+# Forb/herb Families c("Asteraceae", "Pteridaceae", "Onagraceae", "Lamiaceae")
 # load lookup tables
-# taxa <- readr::read_csv("data/forb_herb_heirarchy_strings.csv")
+# taxa <- readr::read_csv("data/forb_herb_hierarchy_strings.csv")
 
 # forbs_results <- process_bad_neighbor_groups("forbs_herbs", taxa = taxa)
 # 
@@ -146,7 +100,6 @@ nn_list %>%
 
 # load the saved file
 comb_all_results_forbs <- readr::read_csv("result_csv/forbs_comb_result.csv")
-
 
 # summarize the results to count all tree_shrub species per state
 comb_all_results_forbs %>% 
@@ -164,17 +117,11 @@ comb_all_results_forbs %>%
 
 ### Vines/ivy
 
-```{r}
-nn_list %>% 
-    filter(Family %in% c("Araceae", "Anacardiaceae", "Vitaceae")) %>% 
-    group_by(Family) %>% 
-    summarize(num_species = n()) %>% 
-    arrange(desc(num_species)) 
-```
+```{r process-vines, warning=FALSE, message=FALSE}
+# vine Families c("Araceae", "Anacardiaceae", "Vitaceae")
 
-```{r process-vines}
 # load lookup tables
-# taxa <- readr::read_csv("data/ivy_vines_heirarchy_strings.csv")
+# taxa <- readr::read_csv("data/ivy_vines_hierarchy_strings.csv")
 # 
 # ivy_results <- process_bad_neighbor_groups("ivy_vines", taxa = taxa)
 # 
@@ -206,17 +153,11 @@ comb_all_results_ivy %>%
 
 ### Grasses
 
-```{r}
-nn_list %>% 
-    filter(Family %in% c("Cyperaceae", "Poaceae")) %>% 
-    group_by(Family) %>% 
-    summarize(num_species = n()) %>% 
-    arrange(desc(num_species)) 
-```
 
-```{r process-grass}
+```{r process-grass, warning=FALSE, message=FALSE}
+# Gras Families  c("Cyperaceae", "Poaceae")
 # load lookup tables
-# taxa <- readr::read_csv("data/grasses_heirarchy_strings.csv")
+# taxa <- readr::read_csv("data/grasses_hierarchy_strings.csv")
 # 
 # grasses_results <- process_bad_neighbor_groups("grasses", taxa = taxa)
 # 
@@ -249,8 +190,8 @@ comb_all_results_grasses %>%
 
 ### Birds
 
-```{r proc-birds}
-# taxa <- readr::read_csv("data/heirarchy_strings.csv")
+```{r proc-birds, warning=FALSE, message=FALSE}
+# taxa <- readr::read_csv("data/hierarchy_strings.csv")
 
 # process the insect taxa, record 1
 # birds_results <- process_bad_neighbor_groups("bird", taxa = taxa[1,])
@@ -285,9 +226,9 @@ comb_all_results_birds %>%
 
 ### Insects
 
-```{r proc-insects}
+```{r proc-insects, warning=FALSE, message=FALSE}
 # load lookup tables
-# taxa <- readr::read_csv("data/heirarchy_strings.csv")
+# taxa <- readr::read_csv("data/hierarchy_strings.csv")
 # 
 # # process the insect taxa, record 3 
 # insects_results <- process_bad_neighbor_groups("insect", taxa = taxa[3,])
@@ -323,7 +264,7 @@ comb_all_results_insects %>%
 
 What contribution does each group make to the total of bad neighbor plants?  
 
-```{r summary-stats}
+```{r summary-stats, warning=FALSE, message=FALSE}
 # trees
 # sum_trees <- comb_all_results_trees %>%
 #     group_by(state_name) %>%
