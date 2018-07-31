@@ -1,7 +1,7 @@
 ---
 title: "Bad Neighbor Analysis Biogeographic Analysis Package"
 author: "Enrique L. Monta&ntilde;o, PhD"
-date: "July-1-2018"
+date: "Started: July-1-2018"
 output: html_notebook
 ---
 
@@ -14,7 +14,7 @@ source("R/generate_bn_count_map.R")
 
 ## Summary
 
-There are approximately 6000 non-native species (plant and animal) currently documented in the Lower 48 United States.  Not every species is found or will be found in a given state.  The purpose of this provisional biogeographic analysis package is to create a state-by-state list of regulated non-native (i.e. invasive) species found in adjacent states, but not yet documented in the state of interest.  Stakeholders in states can use the "Bad Neighbor" analysis to see a list of species of concern to develop monitoring and management strategies before invasion.
+There are approximately 6000 non-native species (plant and animal) currently documented in the Lower 48 United States.  Not every species is found or will be found in a given state.  The purpose of this provisional bio-geographic analysis package is to create a state-by-state list of regulated non-native (i.e. invasive) species found in adjacent states, but not yet documented in the state of interest.  Stakeholders in states can use the "Bad Neighbor" analysis to see a list of species of concern to develop monitoring and management strategies before invasion.
 
 The Bad Neighbor analysis can be run on any type of taxon for which the Biodiversity Information Serving Our Nation (BISON) species occurrence database has records.  For the sake of illustration, a subset of taxonomic classes and families were selected to demonstrate the analysis.  Those groups include species of high concern in the plant, animal and insect kingdoms.  Groups chosen were:
 
@@ -22,22 +22,22 @@ The Bad Neighbor analysis can be run on any type of taxon for which the Biodiver
     - Tree/Shrub  
     - Grass  
     - Ivy/Vines  
-    - Forb/Herb
-2) Insects
-3) Birds
+    - Forb/Herb  
+2) Insects  
+3) Birds  
 
 
-### Processing steps
+## Processing steps
 
 The following outlines the various stages of running the Bad Neighbor BAP.  The process is developed in three primary steps:
 
-State list
+State list  
 1) Query individual state for a list of all species at a given taxonomic group.  The species group list can be generated from any valid taxonomic group;
 
-Buffer States List
+Buffer States List  
 2) Query adjacent states for a list of all species at a given taxonomic group;
 
-Bad Neighbor List
+Bad Neighbor List  
 3) Intersect lists 1 and 2 to find a list of species in 2 (buffer states) not currently documented in 1 (state); this is the Bad Neighbor list.
 
 The processing is done in several R scripts stored in the `R` directory:
@@ -51,11 +51,13 @@ The processing is done in several R scripts stored in the `R` directory:
 
 ## Results
 
-```{r echo=FALSE}
+The results have been run and saved in a csv file.
+
+```{r load-combined-results, message=FALSE, warning=FALSE}
 comb_all_results <- readr::read_csv("result_csv/combine_all_plant_bad_neighbor.csv")
 ```
 
-There are a total of `r sum(comb_all_results$bad_neighbor_count)` for the Lower 48 United States.  The table below describes the results by taxon group as total and the relative contribution, or threat, for each group.
+There are a total of `r sum(comb_all_results$bad_neighbor_count)` "Bad Neighbor" species documented in the Lower 48 United States.  The table below describes the results by taxon group as total and the relative contribution, or threat, for each group.
 
 ```{r summary-results-table, echo=FALSE}
 comb_all_results %>% 
@@ -68,7 +70,7 @@ comb_all_results %>%
            `Pct of Bad Neighbor` = pct_contrib_bad_neighbor)
 ```
 
-The chart below illustrates the realitve threat from each of the taxon groups.
+The chart below illustrates the relative threat from each of the taxon groups.
 
 ```{r summary-results-chart, echo=FALSE}
 comb_all_results %>% 
@@ -95,23 +97,25 @@ The results indicate the Forb/Herb group present the greatest overall threat, wi
 
 Maps can help describe the problem and where it is occurring.  A choropleth map describes the location of the states under greatest threat.  The results of the Bad Neighbor Analysis contain the number of species in adjacent states that are not currently documented in the state of interest.  Therefore, plotting this count as a color intensity describes those states that are under most threat.  The first map is for all groups combined.
 
+
 ```{r threat-map, echo=FALSE}
 comb_all_results %>% 
     group_by(state_name) %>% 
     summarise(species_count = sum(bad_neighbor_count)) %>% 
     generate_bn_count_map(taxon = "All Groups")
+
 ```
 
 The summary map shows all states have Bad Neighbors from some group.  The areas of red in the map indicate those states under the greatest threat from its neighbors; that is, there are an increasing number of non-native species in neighboring states that are not yet documented in the state itself.  The package provides a list of the actual bad neighbor species a land manager in the state might use to prioritize monitoring.
 
-States that are colored green present a more nuanced result.  Most simply, a lower number of bad neighbors can indicate either a lack of non-native species.  However, a more realistic interpretation is the state is already host to most of the non-native species present in adjacent states.  Florida, for example, is dark green and only has 171 Bad Neighbors, but is known to already be host to many non-native species.
+States that are colored green present a more nuanced result.  Most simply, a lower number of bad neighbors can indicate a lack of non-native species.  However, a more realistic interpretation is the state is already host to most of the non-native species present in adjacent states.  Florida, for example, is dark green and only has 171 Bad Neighbors, but is known to already be host to many non-native species.
 
 
 ### Taxon Group Results
 
 The result maps from each individual taxon group are presented below in descending order.
 
-Forb/Herb
+**Forb/Herb**
 
 ```{r forb-herb-map, echo=FALSE, message=FALSE, warning=FALSE}
 comb_all_results_forbs <- readr::read_csv("result_csv/forbs_comb_result.csv")
@@ -124,7 +128,7 @@ comb_all_results_forbs %>%
     generate_bn_count_map(taxon = "Forb/Herb")
 ```
 
-Tree/Shrub
+**Tree/Shrub**
 
 ```{r tree-shrib-map, echo=FALSE, message=FALSE, warning=FALSE}
 comb_all_results_trees <- readr::read_csv("result_csv/trees_comb_result.csv")
@@ -137,7 +141,7 @@ comb_all_results_trees %>%
     generate_bn_count_map(taxon = "Tree/Shrub")
 ```
 
-Insect
+**Insect**
 
 ```{r insect-map, echo=FALSE, message=FALSE, warning=FALSE}
 # load the saved file
@@ -152,7 +156,7 @@ comb_all_results_insects %>%
     generate_bn_count_map(taxon = "Insect")
 ```
 
-Grass
+**Grass**
 
 ```{r grass-map, echo=FALSE, message=FALSE, warning=FALSE}
 # load the saved file
@@ -167,7 +171,7 @@ comb_all_results_grasses %>%
 ```
 
 
-Birds
+**Birds**
 
 ```{r bird-map, echo=FALSE, message=FALSE, warning=FALSE}
 # load the saved file
@@ -182,7 +186,7 @@ comb_all_results_birds %>%
 ```
 
 
-Ivy/Vine
+**Ivy/Vine**
 
 ```{r ivy-map, echo=FALSE, message=FALSE, warning=FALSE}
 # load the saved file
@@ -203,25 +207,29 @@ The following is an illustration of how specific taxon group results might be pr
 
 The `generate_state_report.R` function was written to produce the text:
 
-```{r}
+```{r demo-report, warning=FALSE, message=FALSE}
 source("R/generate_state_report_text.R")
 
 # print a text report
-cat(generate_state_report_text("Colorado", group_name = "Insect", comb_all_results_trees))
+cat(generate_state_report_text("Colorado", group_name = "Insect", comb_all_results_insects))
 ```
 
-The species list is stored as json in the `results_json` directory.  The data were generated on a taxon group-by-group basis, then by state.  The separate taxon group json files need to be combined into a single list for plant groups.  The insect group will be used for illustration since this is only a single taxon group.
+The species list is stored as json in the `results_json` directory.  The data were generated on a taxon group-by-group basis, then by state.  The separate taxon group json files (e.g. tree/shrub, ivy/vines, forb/herb, grasses) need to be combined into a single list for plant groups.  The insect group will be used for illustration since this is only a single taxon group.
 
 The final result can combine the list of scientific names with a link to BISON for more information.
 
-```{r}
+```{r demo-table, warning=FALSE, message=FALSE}
+# load the insect result file.  This includes all summaries and species list
 species_list <- jsonlite::fromJSON("result_json/insect/Insecta/Colorado_Insecta_bad_neighbor.json")
+
+# parse the result to generate a table of species
 species_list$species_list %>% 
     select(name, tsn) %>% 
+    # create an html link from the result
     mutate(link = str_c("<a href ='https://bison.usgs.gov/index.jsp?scientificName=",
                         name, 
                         "&ITIS=itis' target='_blank'>")) %>% 
-    rename("ScientificName" = name, "TSN" = tsn)
+    rename("ScientificName" = name, "TSN" = tsn) #rename for clarity
 ```
 
 
