@@ -14,7 +14,7 @@ source("R/generate_bn_count_map.R")
 
 ## Summary
 
-There are approximately 6000 non-native species (plant and animal) currently documented in the Lower 48 United States.  Not every species is found or will be found in a given state.  The purpose of this provisional bio-geographic analysis package is to create a state-by-state list of regulated non-native (i.e. invasive) species found in adjacent states, but not yet documented in the state of interest.  Stakeholders in states can use the "Bad Neighbor" analysis to see a list of species of concern to develop monitoring and management strategies before invasion.
+There are approximately 6000 distinct non-native species (plant and animal) currently documented in the Lower 48 United States.  Not every species is found or will be found in a given state.  The purpose of this provisional bio-geographic analysis package is to create a state-by-state list of regulated non-native (i.e. invasive) species found in adjacent states, but not yet documented in the state of interest.  Stakeholders in states can use the "Bad Neighbor" analysis to see a list of species of concern to develop monitoring and management strategies before invasion.
 
 The Bad Neighbor analysis can be run on any type of taxon for which the Biodiversity Information Serving Our Nation (BISON) species occurrence database has records.  For the sake of illustration, a subset of taxonomic classes and families were selected to demonstrate the analysis.  Those groups include species of high concern in the plant, animal and insect kingdoms.  Groups chosen were:
 
@@ -57,7 +57,7 @@ The results have been run and saved in a csv file.
 comb_all_results <- readr::read_csv("result_csv/combine_all_plant_bad_neighbor.csv")
 ```
 
-There are a total of `r sum(comb_all_results$bad_neighbor_count)` "Bad Neighbor" species documented in the Lower 48 United States.  The table below describes the results by taxon group as total and the relative contribution, or threat, for each group.
+Of the 6000 non-native species, there are a total of `r sum(comb_all_results$bad_neighbor_count)` "Bad Neighbor" occurrences of those species in the Lower 48 United States.  The table below describes the results by taxon group as total and the relative contribution, or threat, for each group.
 
 ```{r summary-results-table, echo=FALSE}
 comb_all_results %>% 
