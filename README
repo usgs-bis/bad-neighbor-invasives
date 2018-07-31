@@ -14,6 +14,7 @@ The project is structured in the following directories:
 **result_json**: result bad neighbor summaries and species lists stored as JSON  
 **man**: Rendered documentation for the functions  
 **graphics**: Various graphics generated as part of the analysis  
+**js**: Some old javascript functions used as referenece.  
 
 
 There are several notebooks outlining various aspects of the project.
@@ -24,4 +25,4 @@ There are several notebooks outlining various aspects of the project.
 
 
 ## Who do I talk to?
-Repo owner or admin: Enrique MontaÃ±o (emontano@usgs.gov or tresmont@gmail.com)
+Repo owner or admin: Enrique Montaño (emontano@usgs.gov or tresmont@gmail.com)
