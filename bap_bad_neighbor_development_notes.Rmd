@@ -1,6 +1,6 @@
 ---
 title: "Bad Neighbor BAP Development Notes"
-date: "1-July-2018"
+date: "Started: 1-July-2018"
 author: "Enrique Monta&ntilde;o, PhD"
 output: html_notebook
 ---
@@ -20,7 +20,7 @@ The various functions for the BAP are as follows:
 
 The main query requires two parameters
 1) A single state FIPS code or a parenthetical group of FIPS codes.  Pairs of state FIPS codes and surrounding states are pre-developed and stored in `data/state_lookup.csv`.  Note: the list includes the District of Columbia;
-2) A string hierarchy_homonym_string in the form: `"*\\-179913\\-*"`.  A predefined list is stored in: `data/heirarchy_strings.csv`, and several groups of related taxa are in files ending in `"*_heirarchy_strings.csv"`.  The list of taxa is currently restricted to the best represented taxa in BISON.
+2) A string hierarchy_homonym_string in the form: `"*\\-179913\\-*"`.  A predefined list is stored in: `data/hierarchy_strings.csv`, and several groups of related taxa are in files ending in `"*_hierarchy_strings.csv"`.  The list of taxa is currently restricted to the best represented taxa in BISON.
 
 
 ```{r query-test, message=FALSE, warning=FALSE}
@@ -59,7 +59,7 @@ state_codes
 Next, the hierarchy homonym strings:
 
 ```{r taxon-strings, message=FALSE, warning=FALSE}
-taxa <- readr::read_csv("data/heirarchy_strings.csv")
+taxa <- readr::read_csv("data/hierarchy_strings.csv")
 taxa
 ```
 
@@ -135,7 +135,7 @@ source("R/state_all_species_query.R")
 source("R/state_bad_neighbor_query.R")
 
 # load lookup tables
-taxa <- readr::read_csv("data/heirarchy_strings.csv")
+taxa <- readr::read_csv("data/hierarchy_strings.csv")
 state_codes <- readr::read_csv("data/state_lookup.csv")
 
 # a subset of the taxa to query
