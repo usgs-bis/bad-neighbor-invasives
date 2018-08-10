@@ -1,0 +1,126 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+## Maps
+
+```{r}
+library(tidyverse)
+source("R/generate_bn_count_map.R")
+# ar <- jsonlite::fromJSON("result_json/all_taxa_summaries.json")
+
+n <- names(all_results)
+n 
+# test with one of the results
+df1 <- all_results[[n[3]]]$bad_neighbor
+
+generate_bn_count_map(df1, taxon = n[3])
+
+# create a loop for plotting all taxon
+for (taxon in n) {
+    print(stringr::str_c("Plotting: ", taxon))
+    
+    # create a file name
+    out_name <- file.path("graphics", stringr::str_c("bad_neighbor_map_", taxon, ".png", sep = ""))
+    # print(out_name)
+    
+    # generate the map
+    m <- generate_bn_count_map(all_results[[taxon]]$bad_neighbor, taxon = taxon)
+    
+    # save
+    ggplot2::ggsave(out_name, m, height = 6, width = 9)
+}
+  
+
+```
+
+
+Now we have plot of the actual count of species for each taxon, so we can visualize the threat to any given state.  However, we can also run some summary statistics based on cumulative counts for all taxa by state.  
+
+- What states are under most threat?
+- What contribution does each taxa make to the total?
+
+We need to combine the various taxa dataframes into a single data frame with a conditional factor for taxon.  the final data frame should look something like:
+
+state_name, taxon, species_count
+
+```{r}
+# Test
+# comb_all_results <- dplyr::bind_rows("Birds" = all_results[[n[1]]]$bad_neighbor, 
+                                     # "Plants" = all_results[[n[4]]]$bad_neighbor,
+                                     # .id = "taxon")
+
+# run for all
+comb_all_results <- purrr::imap_dfr(all_results, ~ tibble::tibble(
+    taxon = .y,
+    state_name = .x$bad_neighbor$state_name,
+    species_count = .x$bad_neighbor$species_count
+))
+
+comb_all_results
+
+# summarize taxon results by state
+comb_all_results %>% 
+    # group by state then taxon
+    group_by(state_name, taxon) %>% 
+    summarise(species_count)
+
+
+```
+
+
+Pie chart of taxon threats
+
+```{r}
+# summarize the data on taxon
+comb_all_results %>% 
+    group_by(taxon) %>% 
+    summarise(sum_species_count = sum(species_count)) %>%
+    mutate(pct_species = (sum_species_count / sum(sum_species_count)) *100) %>% 
+    ggplot(aes(x = taxon, y = pct_species)) +
+    geom_bar(stat = "identity")
+
+
+```
+
+
+
+## Tests (NOT USED)
+```{r}
+us_states <- sf::st_as_sf(maps::map("state", plot = FALSE, fill = TRUE))
+    
+    # project to albers equal area for the U.S.
+    # EPSG:102003 USA_Contiguous_Albers_Equal_Area_Conic
+    # +proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=37.5 +lon_0=-96 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs
+us_states_alb <- sf::st_transform(us_states, crs = 102003)
+
+ggplot2::ggplot() + ggplot2::geom_sf(data = us_states_alb)
+    
+    # mutate the state_name to match the map data
+    df <- dplyr::mutate(df1, state_name = stringr::str_to_lower(stringr::str_replace_all(df1$state_name, "_", " ")))
+    df
+    # join the data
+    us_states_2 <- dplyr::left_join(us_states_alb, df, by = c("ID" = "state_name"))
+    
+    us_states_2 <- dplyr::mutate(us_states_2, area = units::set_units(sf::st_area(us_states_alb), km^2))
+    
+    us_states_2$bn_density * 100
+    
+    
+    
+    # normalize the data based on area
+    us_states_2 <- dplyr::mutate(us_states_2, bn_density = species_count / area)
+    
+    ggplot2::ggplot() + ggplot2::geom_sf(data = us_states_2, ggplot2::aes(fill = bn_density * 100)) #+
+        ggplot2::scale_fill_gradient(name = "Bad Neighbors", low = "#fff7fb", high = "#014636")
+    
+    # build a title, replacing _ as needed
+    t <- stringr::str_c("Lower 48", stringr::str_replace_all(taxon, "_", " "), 
+                        "Bad Neighbor Threat Density", sep = " ") 
+
+    
+    
+    https://bison.usgs.gov/solr/occurrences/select/?q=computedStateFips:51%20AND%20hierarchy_homonym_string%3A%2A%5C-202422%5C-%2A%20&establishmentMeans:L48&rows=0&facet=true&facet.field=ITISscientificName&facet.limit=-1&facet.mincount=1&wt=json
+```
+

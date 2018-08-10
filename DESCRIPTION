@@ -1,0 +1,29 @@
+Package: badNeighbor
+Type: Package
+Title: Bad Neighbor Analysis Package
+Version: 0.1.0
+Encoding: UTF-8
+Authors@R: c(person("Enrique", "Monta\u00F1o", role = c("aut", "cre"),
+		     email = "emontano@usgs.gov"))
+Description: This package is a Biogeographic Analysis Package (BAP) for determining
+    a state-by-state list of regulated non-native (i.e. invasive) species found in adjacent states, 
+    but not yet documented in the state of interest.
+LazyData: TRUE
+Depends:
+    R (>= 3.5.0)
+Imports:
+    dplyr (>= 0.7.6),
+    ggplot2 (>= 3.0.0),
+    glue (>= 1.3.0),
+    httr (>= 1.3.1),
+    jsonlite (>= 1.5),
+    maps (>= 3.3.0),
+    purrr (>= 0.2.5),
+    readr (>= 1.1.1),
+    readxl (>= 1.1.0),
+    sf (>= 0.6-3),
+    stringr (>= 1.3.1),
+    tibble (>= 1.4.2),
+    tidyverse (>= 1.2.1)
+Suggests:
+RoxygenNote: 6.1.0

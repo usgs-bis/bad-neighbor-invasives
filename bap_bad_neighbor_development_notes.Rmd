@@ -1,0 +1,202 @@
+---
+title: "Bad Neighbor BAP Development Notes"
+date: "Started: 1-July-2018"
+author: "Enrique Monta&ntilde;o, PhD"
+output: html_notebook
+---
+
+The following outlines the various stages of development of the BAP.
+
+## Testing
+
+The various functions for the BAP are as follows:
+
+- `process_bad_neighbor_groups.R` is a wrapper function executing all necessary steps;
+- `state_bad_neighbor_query.R` is the primary BISON query and parsing function to develop both the state and buffer state lists of non-native species;
+- `state_all_species_query.R` is a second BISON query/parsing function returning all species in a given state.  This is included for possible future work, but the results are not used here;
+- `export_bad_neighbor_list.R` is a wrapper function to run the intersect between states and the buffer states to create the bad neighbor list and export the results to JSON. Result files are located in the `results_json` directory;
+- `generate_bn_count_map.R` is a function to generate a chloropleth map of results.
+
+
+The main query requires two parameters
+1) A single state FIPS code or a parenthetical group of FIPS codes.  Pairs of state FIPS codes and surrounding states are pre-developed and stored in `data/state_lookup.csv`.  Note: the list includes the District of Columbia;
+2) A string hierarchy_homonym_string in the form: `"*\\-179913\\-*"`.  A predefined list is stored in: `data/hierarchy_strings.csv`, and several groups of related taxa are in files ending in `"*_hierarchy_strings.csv"`.  The list of taxa is currently restricted to the best represented taxa in BISON.
+
+
+```{r query-test, message=FALSE, warning=FALSE}
+# compile the query query code
+source("R/state_bad_neighbor_query.R")
+
+# run the code for Virginia
+# 51 FIPS code for Virginia
+# list of surrounding state FIPS codes
+buff_states <- "(24 11 37 47 21 54)"
+
+# "*\\-202422\\-*" hierarchy_homonym_string for all plants
+va_nn <- state_bad_neighbor_query(fips_list = 51, taxon = "*\\-202422\\-*")
+
+# run the query for the buffer states
+buff_nn <- state_bad_neighbor_query(fips_list = buff_states, taxon = "*\\-202422\\-*")
+
+# view the results
+va_nn
+buff_nn
+```
+
+We now have lists of non-native plant species for both the state of interest, Virginia, and the buffer states surrounding them.  The list is comprised of the scientific name of the species, the number of occurrences found, and the Taxonomic Serial Number (TSN) for the species from the Integrated Taxonomic Information System ([ITIS](https://www.itis.gov)).
+
+## Using lookup tables
+
+We can now test the code using lookup tables.
+
+First, the states:
+
+```{r state-codes, message=FALSE, warning=FALSE}
+state_codes <- read_csv("data/state_lookup.csv")
+state_codes
+```
+
+Next, the hierarchy homonym strings:
+
+```{r taxon-strings, message=FALSE, warning=FALSE}
+taxa <- readr::read_csv("data/hierarchy_strings.csv")
+taxa
+```
+
+Using the same example state above, Virginia, we can replicate the all plants result using the lookup tables as input to the query.
+
+```{r lookup-test, message=FALSE, warning=FALSE}
+# filter the states list to VA
+va_data <- filter(state_codes, state_name == "Virginia")
+va_data
+
+# run the queries
+va_nn_lookup <- state_bad_neighbor_query(fips_list = va_data$state_fips, taxon = taxa$hierarchy_homonym_string[4])
+va_nn_buffer_lookup <- state_bad_neighbor_query(fips_list = va_data$buffer_fips, taxon = taxa$hierarchy_homonym_string[4])
+
+# View results
+va_nn_lookup
+va_nn_buffer_lookup
+```
+
+We are getting the same result from both versions of the data, so that means the query using lookup works.
+
+## Intersect results
+
+The next step in the BAP is to find those plant species in the buffer states that are not current observed in the state of interest (Virginia in this example); this is the bad neighbor list.  This is accomplished by intersecting the two lists.  The R `dplyr` library offers a convenient way to do this using various table joins.  The function uses the TSN for the intersect since the number should: 1) be unique to a species, and 2) not suffer from inconsistent spelling or string comparison error.
+
+```{r intersect-tables, message=FALSE, warning=FALSE}
+# Join the two data sets, excluding TSNs from Virgina
+diff_species_buffer <- anti_join(va_nn_buffer_lookup, va_nn_lookup, by="tsn")
+
+# the result is the list of bad neighbors
+diff_species_buffer
+
+```
+
+There are 601 non-native plant species documented in states bordering this state that are not documented in the state itself in BISON.  Note that we are only interested in the number of species (number of rows in the result), not the count field.  The counts are recorded occurrences, but do not reflect a full distribution, so to report this number can be misleading.  However, reporting a documented species, i.e. a species with *any occurrence*, represents at least one known occurrence of the species.
+
+The result is consistent with the results from the web service: [NISC "Bad Neighbor" Analysis](http://www.stingersplace.com/js/BISONBadNeighbor.html), that runs the analysis based on ITIS scientific names instead of TSN.  The difference can be explain through the removal of ambiguous TSN (homonyms and synonyms) done in the query here.
+
+Run the opposite join to confirm we get a different result for the plant species in Virginia that are not in the Buffer states.
+
+```{r species-in-va, message=FALSE, warning=FALSE}
+# perform the opposite
+diff_species_va <- anti_join(va_nn_lookup, va_nn_buffer_lookup, by="tsn")
+diff_species_va
+```
+
+There is no direct comparison for this result, but it clarifies the results as being different and not related to the intersect itself.
+
+## Export Results
+
+The last step in the query is to export the results.  The export will run the intersect outlined above and result in a JSON data set for portability and use in web services.  The function `export_bad_neighbor_list` performs the intersect and exports the bad neighbor species list for each state.
+
+```{r export-result-json, message=FALSE, warning=FALSE}
+# run the export_bad_neighbor_list function to intersect and export the list
+export_bad_neighbor_list(state_list = va_nn_lookup, buffer_list = va_nn_buffer_lookup, taxon = taxa$common_name[4], state_name = va_data$state_name)
+
+# check the result
+va_json <- jsonlite::fromJSON("result_json/Plants/Virginia_Plants_bad_neighbor.json")
+head(va_json)
+```
+
+
+The export works, so now we can put it all together to loop over all combinations of taxa and states.
+
+## Generate all states
+
+Loop over all combinations of states and taxa.
+
+```{r loop-all, eval=FALSE, message=FALSE, warning=FALSE}
+# load source scripts
+source("R/export_bad_neighbor_list.R")
+source("R/state_all_species_query.R")
+source("R/state_bad_neighbor_query.R")
+
+# load lookup tables
+taxa <- readr::read_csv("data/hierarchy_strings.csv")
+state_codes <- readr::read_csv("data/state_lookup.csv")
+
+# a subset of the taxa to query
+taxa_idx <- c(1,2,3,4,5,7,8,9)
+
+# build a loop for the taxa
+# for (k in 1:nrow(taxa)) {
+for(k in taxa_idx) {
+    # get the taxon
+    taxon <- taxa[k, ]
+   
+    print(stringr::str_c("Processing Taxon:", taxon$common_name, sep = " "))
+        
+    # a list to hold results
+    bad_neighbor_list <- vector("list", nrow(state_codes))
+
+    # a list to hold the all-species result
+    all_species_list <- vector("list", nrow(state_codes))
+
+    # build a loop for all states
+    for(i in 1:nrow(state_codes)) {
+
+        print(stringr::str_c("Processing:", state_codes$state_name[i], "FIPS:", state_codes$state_fips[i],
+                    "Buffer FIPS:", state_codes$buffer_fips[i], sep = " "))
+
+        # run the occurrence queries
+        state_nn <- state_bad_neighbor_query(fips_list = state_codes$state_fips[i], 
+                                           taxon = taxon$hierarchy_homonym_string)
+        
+        buffer_nn <- state_bad_neighbor_query(fips_list = state_codes$buffer_fips[i], 
+                                            taxon = taxon$hierarchy_homonym_string)
+
+        # run the all-species query for the state
+        all_species_list[[i]] <- state_all_species_query(fips_list = state_codes$buffer_fips[i], 
+                                             taxon = taxon$hierarchy_homonym_string,
+                                             state_name = state_codes$state_name[i])
+        
+        # test for an empty result
+        if(!is.null(state_nn) && !is.null(buffer_nn)) {
+            # export the results
+            bad_neighbor_list[[i]] <- export_bad_neighbor_list(state_list = state_nn, buffer_list = buffer_nn, 
+                                        taxon = taxon$common_name, state_name = state_codes$state_name[i])
+        } 
+
+    }
+
+    # combine the results into a single tibble
+    bad_neighbor_df <- dplyr::bind_rows(bad_neighbor_list)
+    # combine the all-species
+    all_species_df <- dplyr::bind_rows(all_species_list)
+
+    # combine all the data frames
+    all_results[[taxon$common_name]] <- list(bad_neighbor = bad_neighbor_df,
+                                                      all_species = all_species_df)
+}
+
+# export the result
+ar_json <- jsonlite::toJSON(all_results)
+# write the json to file
+readr::write_lines(ar_json, path = "result_json/all_taxa_summaries.json")
+
+```
+
+
