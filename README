@@ -23,6 +23,11 @@ There are several notebooks outlining various aspects of the project.
 2) bap_bad_neighbor_analysis.rmd (.html) documents the project and provides a results from the Bad Neighbor analysis for several taxonomic groups;  
 3) grouped_species_notes.Rmd (.html) documents the development of informal taxonomic groups like tree/shrub from formal taxonomic Families.
 
+## Use Constraints
+
+This analysis package is designed to provide information on a state-by-state basis, and is limited to that scale.  The analysis results and reported non-native species within a given state are only as accurate as the underlying occurrence data provided to the BISON service, and may not fully reflect the distribution of a species.  Please refer to BISON for a list of [data providers](https://bison.usgs.gov/#providers) and information regarding those collections.  The analysis package does not suggest in any way the absolute acccuracy of these data or the results.
+
 
 ## Who do I talk to?
-Repo owner or admin: Enrique Montano (emontano@usgs.gov or tresmont@gmail.com)
+
+Primary contact: Enrique Montano (emontano@usgs.gov or tresmont@gmail.com)
