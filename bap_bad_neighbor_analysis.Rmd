@@ -76,18 +76,16 @@ The chart below illustrates the relative threat from each of the taxon groups.
 comb_all_results %>% 
     group_by(family) %>% # group by family
     summarise(contrib_bad_neighbor = sum(bad_neighbor_count)) %>%  # calculate the sum of each group
-    mutate(pct_contrib_bad_neighbor = (contrib_bad_neighbor / sum(contrib_bad_neighbor) * 100)) %>% 
-    ggplot(aes(x = reorder(family, pct_contrib_bad_neighbor), y = pct_contrib_bad_neighbor)) +
-    geom_bar(stat = "identity") +
-    # geom_text(aes(label = paste0(prettyNum(pct_contrib_bad_neighbor, digits = 3), "%"), 
-                  # y = pct_contrib_bad_neighbor),
-                  # vjust = 1.4, size = 4, color = "white") +
-    labs(title = "Threat of Plant Family Bad Neighbors",
-         x = "Plant Family Bad Neighbor",
-         y = "Percent Contribution") +
-    # ggthemes::theme_tufte()
+    mutate(pct_contrib_bad_neighbor = (contrib_bad_neighbor / sum(contrib_bad_neighbor))) %>% # calculate percent
+    ggplot(aes(x = reorder(family, pct_contrib_bad_neighbor), y = pct_contrib_bad_neighbor)) + 
+    geom_bar(stat = "identity") + 
+    scale_y_continuous(labels = scales::percent) + # change the y-axis labels to percent
+    labs(title = "Percent Threat of Sample Groups Bad Neighbors",
+         x = "Bad Neighbor Group",
+         y = "Relative Contribution") +
     theme_bw() +
     theme(plot.title = ggplot2::element_text(size = ggplot2::rel(1.5)))
+
 ```
 
 The results indicate the Forb/Herb group present the greatest overall threat, with Tree/Shrub, Insects, and Grass close behind.  Recall, a Bad Neighbor is defined as a species that is not yet documented in a given state.  Therefore, these results suggest many states are not yet invaded.  Birds are a smaller Bad Neighbor, possibly because of migration and ease of movement.  The low (almost zero) results for Ivy/Vines suggest the species in this group *already* occur in the states.
