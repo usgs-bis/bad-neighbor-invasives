@@ -45,7 +45,7 @@ state_bad_neighbor_query <- function(fips_list, taxon, useEstMeans = TRUE) {
                   rows = 0) # get all rows
     
     # build the url and execute
-    query_url <- httr::GET("https://data.usgs.gov/solr/occurrences/select/?q=",
+    query_url <- httr::GET("https://bison.usgs.gov/solr/occurrences/select/?q=",
                            query = query)
     
     

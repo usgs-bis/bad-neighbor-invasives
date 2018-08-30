@@ -32,7 +32,7 @@ state_all_species_query <- function(fips_list, taxon, state_name) {
                   rows = 0) # get all rows
     
     # build the url and execute
-    query_url <- httr::GET("https://data.usgs.gov/solr/occurrences/select/?q=",
+    query_url <- httr::GET("https://bison.usgs.gov/solr/occurrences/select/?q=",
                            query = query)
     
     
