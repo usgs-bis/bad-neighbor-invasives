@@ -12,9 +12,21 @@ source("R/generate_bn_count_map.R")
 ```
 
 
-## Summary
+## Purpose
 
-There are approximately 6000 distinct non-native species (plant and animal) currently documented in the Lower 48 United States.  Not every species is found or will be found in a given state.  The purpose of this provisional bio-geographic analysis package is to create a state-by-state list of regulated non-native (i.e. invasive) species found in adjacent states, but not yet documented in the state of interest.  Stakeholders in states can use the "Bad Neighbor" analysis to see a list of species of concern to develop monitoring and management strategies before invasion.
+There are approximately 6000 distinct non-native species (plant and animal) currently documented in the Lower 48 United States.  Not every species is found or will be found in a given state.  The purpose of this provisional bio-geographic analysis package is to create a state-by-state list of regulated non-native (i.e. invasive) species found in adjacent states, but not yet documented in the state of interest.  
+
+The bio-geographic analysis package uses the Biodiversity Information Serving Our Nation (BISON) species occurrence database [https://bison.usgs.gov](https://bison.usgs.gov) to determine species occurrences in the United States and its Territories. The data in BISON provide researchers with records of biological occurrence gathered across multiple agencies and organizations as a single, online resource.
+
+This package was motivated by work undertaken for the [Western Governors Association](http://westgov.org), supporting their [Biosecurity and Invasive Species Initiative](http://westgov.org/initiatives/biosecurity-and-invasive-species-initiative).  The original analysis was designed to answer the following questions:
+
+1) What species occur in the Western States?  These states are defined as states west of Minnesota (MN), Iowa (IA), Missouri ), Arkansas (AR), and Louisiana (LA).  
+2) What species occur in the states immediately adjacent to the Western States?
+  * Defined as: MN, IA, MO, AR, LA
+3) What species from the Tier States (part 2) **DO NOT** occur in the Western States (part 1)?
+4) Which result species from part 3 are non-native?
+
+This original analysis was expanded and refined to individual states across the Lower 48 Unites States by applying a similar logic at a new scale to benefit a larger user group.  Stakeholders like the Western Governor Association can use the "Bad Neighbor" analysis to see a list of species of concern to develop monitoring and management strategies before invasion.  Results from the package can help state biologists, foresters, and rangeland managers in federal agencies like the Bureau of Land Management set species priorities for control treatments to benefit land conservation and promote healthy ecosystems.
 
 The Bad Neighbor analysis can be run on any type of taxon for which the Biodiversity Information Serving Our Nation (BISON) species occurrence database has records.  For the sake of illustration, a subset of taxonomic classes and families were selected to demonstrate the analysis.  Those groups include species of high concern in the plant, animal and insect kingdoms.  Groups chosen were:
 
