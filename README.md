@@ -19,8 +19,8 @@ The project is structured in the following directories:
 
 There are several notebooks outlining various aspects of the project.
 
-1) bap_bad_neighbor_development_notes.Rmd (.html) documents the development of the functions used in the package and provides example input/output;  
-2) bap_bad_neighbor_analysis.rmd (.html) documents the project and provides a results from the Bad Neighbor analysis for several taxonomic groups;  
+1) bap_bad_neighbor_analysis.rmd (.html) documents the project and provides a results from the Bad Neighbor analysis for several taxonomic groups;    
+2) bap_bad_neighbor_development_notes.Rmd (.html) documents the development of the functions used in the package and provides example input/output;  
 3) grouped_species_notes.Rmd (.html) documents the development of informal taxonomic groups like tree/shrub from formal taxonomic Families.
 
 ## Use Constraints
