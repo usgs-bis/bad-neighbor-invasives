@@ -3,6 +3,7 @@ title: "Bad Neighbor Analysis Biogeographic Analysis Package"
 author: "Enrique L. Monta&ntilde;o, PhD"
 date: "Started: July-1-2018"
 output: html_notebook
+bibliography: bad_neighbor_citations.bib
 ---
 
 ```{r libraries, message=FALSE, warning=FALSE, results='hide'}
@@ -12,9 +13,9 @@ source("R/generate_bn_count_map.R")
 ```
 
 
-## Purpose
+# Purpose
 
-There are approximately 6000 distinct non-native species (plant and animal) currently documented in the Lower 48 United States.  Not every species is found or will be found in a given state.  The purpose of this provisional bio-geographic analysis package is to create a state-by-state list of regulated non-native (i.e. invasive) species found in adjacent states, but not yet documented in the state of interest.  
+There are approximately 6000 distinct non-native species (plant and animal) currently documented in the Lower 48 United States [@Simpson2018].  Not every species is found or will be found in a given state.  The purpose of this provisional bio-geographic analysis package is to create a state-by-state list of regulated non-native (i.e. invasive) species found in adjacent states, but not yet documented in the state of interest.  
 
 The bio-geographic analysis package uses the Biodiversity Information Serving Our Nation (BISON) species occurrence database [https://bison.usgs.gov](https://bison.usgs.gov) to determine species occurrences in the United States and its Territories. The data in BISON provide researchers with records of biological occurrence gathered across multiple agencies and organizations as a single, online resource.
 
@@ -38,6 +39,19 @@ The Bad Neighbor analysis can be run on any type of taxon for which the Biodiver
 2) Insects  
 3) Birds  
 
+## Informal Taxonomic Groups
+
+Taxonomy does not accurately describe how an end user might approach grouping invasive species.  For example, at the Class level, there are 56 entries describing the non-native species in [[@Simpson2018].  A more intuitive approach might be to group species into informal classifications like tree/shrub.  The problem here is there is no one Family or Class that describes this sub-group; hence informal.  
+
+The [USDA PLANTS](https://www.plants.usda.gov/about_plants.html) database provides a habitat flag to describe the generalized growth habit of various species like tree, shrub, subshrub, or combinations thereof.  Therefore, a list of taxonomic Families that incorporate tree/shrub can be developed from the PLANTS habitat.
+
+A series of families related by habit have been formed and a bad neighbor analysis is run for each of these groups.  Each of the informal groups listed below have an associated lookup table for the hierarchy homonym strings: 
+
+- data/forb_herb_hierarchy_strings.csv  
+- data/grasses_hierarchy_strings.csv  
+- data/ivy_vines_hierarchy_strings.csv  
+- data/tree_shrub_hierarchy_strings.csv
+
 
 ## Processing steps
 
@@ -59,6 +73,9 @@ The processing is done in several R scripts stored in the `R` directory:
 - `state_all_species_query.R` is a second BISON query/parsing function returning all species in a given state.  This is included for possible future work, but the results are not used here;
 - `export_bad_neighbor_list.R` is a wrapper function to run the intersect between states and the buffer states to create the bad neighbor list and export the results to JSON. Result files are located in the `results_json` directory;
 - `generate_bn_count_map.R` is a function to generate a chloropleth map of results.
+
+
+A portion of the development of the code uses a USGS non-native species list [@Simpson2018] to verify and qualify results from BISON.  The BISON queries used in this product uses these data to indicate non-native status.
 
 
 ## Results
@@ -100,12 +117,12 @@ comb_all_results %>%
 
 ```
 
-The results indicate the Forb/Herb group present the greatest overall threat, with Tree/Shrub, Insects, and Grass close behind.  Recall, a Bad Neighbor is defined as a species that is not yet documented in a given state.  Therefore, these results suggest many states are not yet invaded.  Birds are a smaller Bad Neighbor, possibly because of migration and ease of movement.  The low (almost zero) results for Ivy/Vines suggest the species in this group *already* occur in the states.
+The results indicate the Forb/Herb group present the greatest overall threat, with Tree/Shrub, Insects, and Grass close behind.  Recall, a Bad Neighbor is defined as a species that is not yet documented in a given state.  Therefore, these results suggest many states are not yet invaded.  Birds are a smaller Bad Neighbor, possibly because of migration and ease of movement.  The low (almost zero) results for Ivy/Vines suggest the species in this group *already* occur in the states, or the taxon itself is under-represented in BISON.
 
 
 ## Maps
 
-Maps can help describe the problem and where it is occurring.  A choropleth map describes the location of the states under greatest threat.  The results of the Bad Neighbor Analysis contain the number of species in adjacent states that are not currently documented in the state of interest.  Therefore, plotting this count as a color intensity describes those states that are under most threat.  The first map is for all groups combined.
+Maps can help describe the problem and where it is occurring.  A chloropleth map describes the location of the states under greatest threat.  The results of the Bad Neighbor Analysis contain the number of species in adjacent states that are not currently documented in the state of interest.  Therefore, plotting this count as a color intensity describes those states that are under most threat.  The first map is for all groups combined.
 
 
 ```{r threat-map, echo=FALSE}
@@ -118,7 +135,7 @@ comb_all_results %>%
 
 The summary map shows all states have Bad Neighbors from some group.  The areas of red in the map indicate those states under the greatest threat from its neighbors; that is, there are an increasing number of non-native species in neighboring states that are not yet documented in the state itself.  The package provides a list of the actual bad neighbor species a land manager in the state might use to prioritize monitoring.
 
-States that are colored green present a more nuanced result.  Most simply, a lower number of bad neighbors can indicate a lack of non-native species.  However, a more realistic interpretation is the state is already host to most of the non-native species present in adjacent states.  Florida, for example, is dark green and only has 171 Bad Neighbors, but is known to already be host to many non-native species.
+States that are colored green present a more nuanced result.  Most simply, a lower number of bad neighbors can indicate a lack of non-native species.  However, a more realistic interpretation is the state is already host to most of the non-native species present in adjacent states.  Florida, for example, is dark green and only has 171 Bad Neighbors, but is known to already be host to many non-native species.  Several states in green also lack neighbors (Canada is not used in this analysis).  Maine, for example, has only a single neighbor, which limits both the analysis and the interpretation.
 
 
 ### Taxon Group Results
@@ -138,6 +155,9 @@ comb_all_results_forbs %>%
     generate_bn_count_map(taxon = "Forb/Herb")
 ```
 
+The map for the Forb/Herb taxon groups visually indicates all states have some level of bad neighbors; the mid-greens seen across the map have over 50 bad neighbors extending to over 200 in the red states.  The presence of yellow and red show states have not yet observed the invading species.  The highest level of bad neighbors is seen in the southwest U.S.
+
+
 **Tree/Shrub**
 
 ```{r tree-shrib-map, echo=FALSE, message=FALSE, warning=FALSE}
@@ -150,6 +170,9 @@ comb_all_results_trees %>%
     # pass to the plot function
     generate_bn_count_map(taxon = "Tree/Shrub")
 ```
+
+The distribution for the Tree/Shrub taxon groups is similar to that of the Forb/Herb groups.  The levels of bad neighbors in mid-green, with 50-100 neighbors in this case, are higher for this group.  Like the Forb/Herb group, the highest level of bad neighbors is in the southwest U.S., which might suggest an ecosystem component limiting movement of these plant groups.
+
 
 **Insect**
 
@@ -166,6 +189,8 @@ comb_all_results_insects %>%
     generate_bn_count_map(taxon = "Insect")
 ```
 
+The map of the Insect taxon group visually indicates more red, or more states that have not yet been invaded, but are under threat.  Much of the red is across the southern half of the country.  There is a notable red state in the northeast (Vermont).  However, the overall numeric range of bad neighbors is lower than that of the Forb/Herb and Tree/Shrub groups.
+
 **Grass**
 
 ```{r grass-map, echo=FALSE, message=FALSE, warning=FALSE}
@@ -180,6 +205,7 @@ comb_all_results_grasses %>%
     generate_bn_count_map(taxon = "Grass")
 ```
 
+Visually, the distribution of bad neighbors for the Grasses taxon groups is similar to both the Forb/Herb and Tree/Shrub groups, as is the numeric range.  There is again an increase in bad neighbors in the southwest.
 
 **Birds**
 
@@ -195,6 +221,7 @@ comb_all_results_birds %>%
     generate_bn_count_map(taxon = "Bird")
 ```
 
+Birds are highly mobile, but these results suggest mobility is limited by some other factors in various parts of the county.  Those states in green, indicate a low level of bad neighbors, which can be interpreted as already invaded.  The central U.S. seems to have a steady level of mid-green, which suggests birds move freely between these ecosystems.  The red colors indicate an increasing level of bad neighbors.  The west U.S. has several states in red, which can be explained on a high level through the presence of mountains limiting mobility/opportunity.  However, the red in the southeast is not as easily explained and requires further study.
 
 **Ivy/Vine**
 
@@ -210,6 +237,7 @@ comb_all_results_ivy %>%
     generate_bn_count_map(taxon = "Ivy/Vine")
 ```
 
+The map for Ivy/Vine bad neighbors indicates there is a lack of data for this taxon, seen as states in gray.  The earlier interpretation of the ivy/vine taxon groups as being under-represented in BISON seems to be the case.  Further interpretation of these results is obscured, since data gaps preclude the full generation of whether a bad neighbor is actually present.
 
 ### Demonstration of state-level results
 
@@ -240,7 +268,9 @@ species_list$species_list %>%
                         name, 
                         "&ITIS=itis' target='_blank'>")) %>% 
     rename("ScientificName" = name, "TSN" = tsn) #rename for clarity
+
 ```
 
 
+# References
 
