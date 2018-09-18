@@ -39,3 +39,4 @@ rsconnect/
 /js
 /question_species
 *.xlsx
+.Rproj.user
