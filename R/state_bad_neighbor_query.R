@@ -65,11 +65,13 @@ state_bad_neighbor_query <- function(fips_list, taxon, useEstMeans = TRUE) {
         # combine the scientific names with the counts
         sn_df <- tibble::tibble(name = n, cnt = v)
     
-        # test for ambiguous results (there have been instances with more than one TSN result row per pivot, but there should only be one)
+        # test for ambiguous results (there have been instances with more than one TSN result
+        # row per pivot, but there should only be one)
         # extract the list of tsn from the pivot
         a <- data$facet_counts$facet_pivot$`ITISscientificName,ITIStsn`$pivot
     
-        # the result of the pivot is a list of data frames, so count the number of rows in each element of the list
+        # the result of the pivot is a list of data frames, so count the number of rows in
+        # each element of the list
         b <- sapply(a, nrow)
     
         # find the index of any list element with more than 1 row
@@ -80,15 +82,6 @@ state_bad_neighbor_query <- function(fips_list, taxon, useEstMeans = TRUE) {
             # drop the unwanted elements
             tsn_list <- a[-c(bad_idx)]
             full_df <- sn_df[-c(bad_idx), ]
-    
-            # export the anomaly
-            exp_df <- tibble::tibble(tsn = a[bad_idx], sname = sn_df$name[c(bad_idx)], cnt = sn_df$cnt[c(bad_idx)])
-            
-            # create a file name
-            out_name <- stringr::str_c("fips_", stringr::str_replace_all(fips_list, "\\s", "_"), "_questions.csv")
-            
-            # write the output
-            readr::write_csv(tidyr::unnest(exp_df), path = file.path("question_species", out_name))
         } else {
             # keep all
             tsn_list <- a
