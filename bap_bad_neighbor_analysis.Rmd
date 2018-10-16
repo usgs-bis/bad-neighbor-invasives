@@ -37,7 +37,7 @@ The Bad Neighbor analysis can be run on any type of taxon for which the Biodiver
     - Ivy/Vines  
     - Forb/Herb  
 2) Insects  
-3) Birds  
+ 
 
 ## Informal Taxonomic Groups
 
@@ -75,7 +75,7 @@ The processing is done in several R scripts stored in the `R` directory:
 - `generate_bn_count_map.R` is a function to generate a chloropleth map of results.
 
 
-A portion of the development of the code uses a USGS non-native species list [@Simpson2018] to verify and qualify results from BISON.  The BISON queries used in this product uses these data to indicate non-native status.
+A portion of the development of the code uses a USGS non-native species list [@Simpson2018-data] to verify and qualify results from the BISON service.  The BISON queries used in to generate the bad neighbor results uses these data internally to indicate non-native status.
 
 
 ## Results
