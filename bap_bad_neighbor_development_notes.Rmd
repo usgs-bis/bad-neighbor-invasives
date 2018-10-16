@@ -16,10 +16,11 @@ The various functions for the BAP are as follows:
 - `state_all_species_query.R` is a second BISON query/parsing function returning all species in a given state.  This is included for possible future work, but the results are not used here;
 - `export_bad_neighbor_list.R` is a wrapper function to run the intersect between states and the buffer states to create the bad neighbor list and export the results to JSON. Result files are located in the `results_json` directory;
 - `generate_bn_count_map.R` is a function to generate a chloropleth map of results.
+- `state_fips_lookup.R` is a helper function for finding FIPS codes and associated data using a state name.
 
 
 The main query requires two parameters
-1) A single state FIPS code or a parenthetical group of FIPS codes.  Pairs of state FIPS codes and surrounding states are pre-developed and stored in `data/state_lookup.csv`.  Note: the list includes the District of Columbia;
+1) A single state (Federal Information Processing Standards) FIPS code or a parenthetical group of FIPS codes.  A FIPS is a five-digit code uniquely identifying counties in the U.S.  The first two digits of a FIPS denote the state, which is all that is used in this package.  Pairs of state FIPS codes and surrounding states are pre-developed and stored in `data/state_lookup.csv`.  Note: the list includes the District of Columbia;
 2) A string hierarchy_homonym_string in the form: `"*\\-179913\\-*"`.  A predefined list is stored in: `data/hierarchy_strings.csv`, and several groups of related taxa are in files ending in `"*_hierarchy_strings.csv"`.  The list of taxa is currently restricted to the best represented taxa in BISON.
 
 
