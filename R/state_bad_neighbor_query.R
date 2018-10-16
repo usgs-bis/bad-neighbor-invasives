@@ -45,6 +45,11 @@ state_bad_neighbor_query <- function(fips_list, taxon, state_name,
         # lookup the codes
         f <- state_fips_lookup(state_string = state_name)
         
+        # lookup will fail if there is more than one match
+        if (is.null(f)) {
+            stop("There are multiple matches for the state name, be more specific.")
+        }
+        
         # get the buffer fips
         if (get_buffer_fips) {
             fips_list <- f$buffer_fips
