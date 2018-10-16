@@ -68,6 +68,20 @@ state_fips_lookup <- function(state_string, fips = NULL) {
                                     stringr::str_detect(state_fips, fips)) 
     }
     
+    # the filter might return multiple matches (e.g. Virginia return both Virginia and West Virginia)
+    if (nrow(state_data_filtered > 1)) {
+        # see if the original state string has a space
+        if(!stringr::str_detect(state_string, "\\s")) {
+            # try to match only the result without spaces
+            state_data_filtered <- dplyr::filter(state_data_filtered,
+                                                 !stringr::str_detect(state_name, "\\s"))
+            
+            # return null if nothing is matched
+            if(nrow(state_data_filtered) == 0) {
+                return(NULL)
+            }
+        }
+    }
     # return the result
     return(state_data_filtered)
 }
