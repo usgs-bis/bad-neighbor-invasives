@@ -1,19 +1,44 @@
-
+# load the required source codes
+source("R/state_fips_lookup.R")
 
 #' state_all_species_query
 #' 
-#' A BISON query/parsing function returning all species in a given state.  This is included for possible future work, but the results are not used here;
+#' A BISON query/parsing function returning all species in a given state.  The code will lookup
+#' the state FIPS code if needed.
 #'
 #' @param fips_list a single state two-digit FIPS code or a parenthetical group of FIPS codes.  Pairs of state FIPS codes and surrounding states are pre-developed and stored in `data/state_lookup.csv`.  Note: the list includes the Distict of Columbia;
 #' @param taxon a string hierarchy_homonym_string in the form: "*\\-179913\\-*".  Again, a predefined list is stored in: `data/heirarchy_strings.csv`.  The list of taxa is currently restricted to the best represented taxa in BISON.
 #' @param state_name a string name of the state to process.
+#' @param get_buffer_fips an optional flag to lookup the buffer states FIPS codes
 #'
 #' @return a tibble with the name of the state, the overall occurrence count for all species in the taxon, and a count of the number of species in the taxon in the state.
 #' @export
 #'
 #' @examples
-#' all_species <- state_all_species_query(fips_list = 51, taxon = "*\\-179913\\-*", state_name = "Virginia")
-state_all_species_query <- function(fips_list, taxon, state_name) {
+#' # find all birds ("*\-174371\-*") in Virginia
+#' all_species <- state_all_species_query(fips_list = 51, taxon = "*\\-174371\\-*", state_name = "Virginia")
+#' 
+#' # same as above without knowing the fips
+#' all_species <- state_all_species_query(taxon = "*\\-174371\\-*", state_name = "Virginia")
+state_all_species_query <- function(fips_list, taxon, state_name, get_buffer_fips = FALSE) {
+    # stop if state name and taxon are not present
+    if(missing(taxon) | missing(state_name)) {
+        stop("Taxon and state name are required.")
+    }
+    
+    # lookup a fips code if needed
+    if(missing(fips_list) & !missing(state_name)) {
+        # lookup the codes
+        f <- state_fips_lookup(state_string = state_name)
+        
+        # get the buffer fips
+        if (get_buffer_fips) {
+            fips_list <- f$buffer_fips
+        } else {
+            # default to state FIPS if unknown
+            fips_list <- f$state_fips
+        }
+    }
     
     # build the query string from arguments
     qstring <- stringr::str_c(c("computedStateFips:", fips_list,
