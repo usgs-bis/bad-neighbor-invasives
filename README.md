@@ -4,6 +4,14 @@ This is a repo for an R-based analysis of non-native species occurrences in the 
 
 ## How do I get set up?
 
+```
+# Make sure the R devtools package is installed
+# install.packages("devtools")
+
+# then run
+devtools::install_github("usgs-bis/bad-neighbor-invasives")
+```
+
 This work is R-based.  The **DESCRIPTION** file contains all the information about the R version and library dependencies.
 
 The project is structured in the following directories:  
@@ -17,10 +25,16 @@ The project is structured in the following directories:
 **js**: Some old javascript functions used as reference
 
 
-There are several notebooks outlining various aspects of the project.
+There are several notebooks outlining various aspects of the project.  All of the analysis and results in the notebooks are self-contained and can be generated running the code chunks in the order they are presented within each notebook.
 
-1) bap_bad_neighbor_analysis.rmd (.html) documents the project and provides a results from the Bad Neighbor analysis for several taxonomic groups;    
-2) bap_bad_neighbor_development_notes.Rmd (.html) documents the development of the functions used in the package and provides example input/output;  
+The HTML verisons of the notebooks are pre-rendered versions of the code notebooks with the `.Rmd` extensions.  The results and graphics should already be rendered in the html.  If that’s not the case, the notebook should be run by running all the code chunks (Mac keyboard: option-command-R; windows keyboard: option-control-R).
+
+The notebooks 
+
+1) bap_bad_neighbor_development_notes.Rmd (.html) documents the development of the functions used in the package and provides example input/output;
+
+2) bap_bad_neighbor_analysis.rmd (.html) documents the project and provides a results from the Bad Neighbor analysis for several taxonomic groups;  
+  
 3) grouped_species_notes.Rmd (.html) documents the development of informal taxonomic groups like tree/shrub from formal taxonomic Families.
 
 ## Use Constraints
