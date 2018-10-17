@@ -3,8 +3,9 @@
 #' A helper function to find FIPS codes and buffers using state name. The function can also works
 #' in reverse to find state names and FIPS buffers using the state FIPS code.
 #'
-#' @param state_string a string with the name of the state to search
-#' @param fips an optional 2-digit FIPS code to search
+#' @param state_string a string with the name of the state to search.  This should be the full name of the state
+#'   to avoid ambiguous results.
+#' @param fips (Optional) a 2-digit FIPS code to search
 #'
 #' @return A tibble with the state FIPS code, the FIPS codes for the states sharing a boundary, and
 #'   the name of the state.
@@ -21,7 +22,7 @@
 #' state_fips_lookup(state_string = "new york")
 #' 
 #' # the function will execute partial matches, but multiple results are possible.
-#' # Multiple results are not necessarily useful as intended
+#' # Multiple results are not necessarily useful
 #' state_fips_lookup(state_string = "carolina")
 #' 
 #' # better to use full names
@@ -61,6 +62,11 @@ state_fips_lookup <- function(state_string, fips = NULL) {
         if(stringr::str_length(fips) == 1) {
             # add leading zero
             fips <- stringr::str_c("0", fips, collapse = "")
+        } else if (stringr::str_length(fips) > 2) {
+            # if the FIPS is a full 5-digit code, trim the first two (state)
+            fips <- stringr::str_sub(fips, start = 1, end = 2)
+        } else {
+            fips <- fips
         }
         
         # search for the fips
@@ -68,7 +74,7 @@ state_fips_lookup <- function(state_string, fips = NULL) {
                                     stringr::str_detect(state_fips, fips)) 
     }
     
-    # the filter might return multiple matches (e.g. Virginia return both Virginia and West Virginia)
+    # the filter might return multiple matches (e.g. Virginia returns both Virginia and West Virginia)
     if (nrow(state_data_filtered > 1)) {
         # see if the original state string has a space
         if(!stringr::str_detect(state_string, "\\s")) {
