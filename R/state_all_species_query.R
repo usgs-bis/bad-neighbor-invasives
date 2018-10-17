@@ -3,7 +3,8 @@ source("R/state_fips_lookup.R")
 
 #' state_all_species_query
 #' 
-#' A BISON query/parsing function returning all species in a given state.  The code will lookup
+#' A BISON query/parsing function returning the number (abundance) of all species in a given state.  The code
+#' does not return a full list of individual species, only the count.  The code will lookup
 #' the state FIPS code if needed.
 #'
 #' @param fips_list a single state two-digit FIPS code or a parenthetical group of FIPS codes.  Pairs of state FIPS codes and surrounding states are pre-developed and stored in `data/state_lookup.csv`.  Note: the list includes the Distict of Columbia;
@@ -20,6 +21,9 @@ source("R/state_fips_lookup.R")
 #' 
 #' # same as above without knowing the fips
 #' all_species <- state_all_species_query(taxon = "*\\-174371\\-*", state_name = "Virginia")
+#' 
+#' # run the above query for buffer states
+#' all_species <- state_all_species_query(taxon = "*\\-174371\\-*", state_name = "Virginia", get_buffer_fips = TRUE)
 state_all_species_query <- function(fips_list, taxon, state_name, get_buffer_fips = FALSE) {
     # stop if state name and taxon are not present
     if(missing(taxon) | missing(state_name)) {
@@ -80,10 +84,11 @@ state_all_species_query <- function(fips_list, taxon, state_name, get_buffer_fip
         
         # we really only want to keep two values, all records and the number of species
         df <- tibble::tibble(state_name = state_name, # name of state
+                        fips_used = fips_list, # a list of the fips used in the query
                         abundance = data$response$numFound,  # all records (abundance) is the numRecords result
                         # the count is the number of rows in the result (i.e. distinct species)
                         count = nrow(n)) 
-
+        
         # return the result
         return(df)
     }
