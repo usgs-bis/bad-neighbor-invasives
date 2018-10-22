@@ -28,15 +28,18 @@ The notebooks are all meant to stand alone to describe different elements of dev
 
 ### R Code
 
+A description of each source script is available in `docs/reference/index.html`.
+
 This work is R-based.  The **DESCRIPTION** file contains all the information about the R version and library dependencies.
 
 The project is structured in the following directories:  
 
-**R**: the main R source code  
+**R**: the main R source code
+**docs**: HTML version of documentation for all the functions  
+**man**: Rendered documentation for the functions  
 **data**: source data for the project  
 **result_csv**: result bad neighbor summaries stored as csv  
 **result_json**: result bad neighbor summaries and species lists stored as JSON  
-**man**: Rendered documentation for the functions  
 **graphics**: Various graphics generated as part of the analysis  
 **js**: Some old javascript functions used as reference
 
