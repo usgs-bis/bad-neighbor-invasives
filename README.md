@@ -2,7 +2,7 @@
 
 This is a repo for an R-based analysis of non-native species occurrences in the Lower 48 U.S. (including the District of Columbia), also referred to as the Bad Neighbor analysis.  The project uses the Biodiversity Information Serving Our Nation (BISON) species occurrence database [https://bison.usgs.gov](https://bison.usgs.gov)
 
-## How do I get set up?
+## Installation
 
 ```
 # Make sure the R devtools package is installed
@@ -11,6 +11,22 @@ This is a repo for an R-based analysis of non-native species occurrences in the 
 # then run
 devtools::install_github("usgs-bis/bad-neighbor-invasives")
 ```
+
+### Get Started
+
+There are several notebooks outlining various aspects of the project.  All of the analysis and results in the notebooks are self-contained and can be generated running the code chunks in the `.Rmd` versions of the notebooks, in the order they are presented within each notebook.
+
+The HTML verisons of the notebooks are pre-rendered versions of the code notebooks with the `.Rmd` extensions.  The results and graphics should already be rendered in the html.  If that’s not the case, the notebook should be run by running *all* the code chunks (Mac keyboard: option-command-R; windows keyboard: option-control-R).
+
+The notebooks are all meant to stand alone to describe different elements of development or illustrate the analysis.  Thus each notebook can be run without the others and are organized as follows:
+
+1) 1_bap_bad_neighbor_analysis.rmd (.html) documents the overall project and provides a results from the Bad Neighbor analysis for several taxonomic groups.  This notebook should be considered the main notebook;  
+
+2) 2_bap_bad_neighbor_development_notes.Rmd (.html) documents the development of the functions used in the package and provides example input/output.  This notbook should be used for anyone interested in the background of the developent;
+
+3) 3_grouped_species_notes.Rmd (.html) documents the development of informal taxonomic groups like tree/shrub from formal taxonomic Families.
+
+### R Code
 
 This work is R-based.  The **DESCRIPTION** file contains all the information about the R version and library dependencies.
 
@@ -24,18 +40,6 @@ The project is structured in the following directories:
 **graphics**: Various graphics generated as part of the analysis  
 **js**: Some old javascript functions used as reference
 
-
-There are several notebooks outlining various aspects of the project.  All of the analysis and results in the notebooks are self-contained and can be generated running the code chunks in the order they are presented within each notebook.
-
-The HTML verisons of the notebooks are pre-rendered versions of the code notebooks with the `.Rmd` extensions.  The results and graphics should already be rendered in the html.  If that’s not the case, the notebook should be run by running all the code chunks (Mac keyboard: option-command-R; windows keyboard: option-control-R).
-
-The notebooks 
-
-1) bap_bad_neighbor_development_notes.Rmd (.html) documents the development of the functions used in the package and provides example input/output;
-
-2) bap_bad_neighbor_analysis.rmd (.html) documents the project and provides a results from the Bad Neighbor analysis for several taxonomic groups;  
-  
-3) grouped_species_notes.Rmd (.html) documents the development of informal taxonomic groups like tree/shrub from formal taxonomic Families.
 
 ## Use Constraints
 
