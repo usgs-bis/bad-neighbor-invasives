@@ -1,1 +1,1 @@
-{"state_name":["Kentucky"],"species_count":[2],"nn_abundance":[11],"species_list":[{"name":"Mylopharyngodon piceus","cnt":10,"tsn":639618},{"name":"Oreochromis mossambicus","cnt":1,"tsn":170015}]}
+{"state_name":["Kentucky"],"bad_neighbor_count":[2],"nn_abundance":[11],"state_nn_species_count":[1],"species_list":[{"name":"Mylopharyngodon piceus","cnt":10,"tsn":639618},{"name":"Oreochromis mossambicus","cnt":1,"tsn":170015}]}
