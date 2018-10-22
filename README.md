@@ -20,15 +20,16 @@ The HTML versions of the notebooks are pre-rendered versions of the code noteboo
 
 The notebooks are all meant to stand alone to describe different elements of development or illustrate the analysis.  Thus each notebook can be run without the others and are organized as follows:
 
-1) 1_bap_bad_neighbor_analysis.rmd (.html) documents the overall project and provides a results from the Bad Neighbor analysis for several taxonomic groups.  This notebook should be considered the main notebook;  
+1) **1_bap_bad_neighbor_analysis.Rmd** (.html) documents the overall project and provides a results from the Bad Neighbor analysis for several taxonomic groups.  This notebook should be considered the main notebook;  
 
-2) 2_bap_bad_neighbor_development_notes.Rmd (.html) documents the development of the functions used in the package and provides example input/output.  This notebook should be used for anyone interested in the background of the development;
+2) **2_bap_bad_neighbor_development_notes.Rmd** (.html) documents the development of the functions used in the package and provides example input/output.  This notebook should be used for anyone interested in the background of the development;
 
-3) 3_grouped_species_notes.Rmd (.html) documents the development of informal taxonomic groups like tree/shrub from formal taxonomic Families.
+3) **3_grouped_species_notes.Rmd** (.html) documents the development of informal taxonomic groups like tree/shrub from formal taxonomic Families.
+
 
 ### R Code
 
-A description of each source script is available in `docs/reference/index.html`.
+An HTML version description of each source script is available in the `docs/reference/index.html` folder.
 
 This work is R-based.  The **DESCRIPTION** file contains all the information about the R version and library dependencies.
 
@@ -36,7 +37,7 @@ The project is structured in the following directories:
 
 **R**: the main R source code
 **docs**: HTML version of documentation for all the functions  
-**man**: Rendered documentation for the functions  
+**man**: Rendered documentation for the functions.  These can be opened in any plain-text editor  
 **data**: source data for the project  
 **result_csv**: result bad neighbor summaries stored as csv  
 **result_json**: result bad neighbor summaries and species lists stored as JSON  
@@ -53,5 +54,7 @@ This analysis package is designed to provide information on a state-by-state bas
 
 Primary contact: Enrique Montano (emontano@usgs.gov or tresmont@gmail.com)
 
+
 ## USGS Provisional Software
+
 This software is preliminary or provisional and is subject to revision. It is being provided to meet the need for timely best science. The software has not received final approval by the U.S. Geological Survey (USGS). No warranty, expressed or implied, is made by the USGS or the U.S. Government as to the functionality of the software and related material nor shall the fact of release constitute any such warranty. The software is provided on the condition that neither the USGS nor the U.S. Government shall be held liable for any damages resulting from the authorized or unauthorized use of the software.
