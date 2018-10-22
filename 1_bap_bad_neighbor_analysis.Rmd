@@ -72,7 +72,8 @@ The processing is done in several R scripts stored in the `R` directory:
 - `state_bad_neighbor_query.R` is the primary BISON query and parsing function to develop both the state and buffer state lists of non-native species;
 - `state_all_species_query.R` is a second BISON query/parsing function returning all species in a given state.  This is included for possible future work, but the results are not used here;
 - `export_bad_neighbor_list.R` is a wrapper function to run the intersect between states and the buffer states to create the bad neighbor list and export the results to JSON. Result files are located in the `results_json` directory;
-- `generate_bn_count_map.R` is a function to generate a chloropleth map of results.
+- `generate_bn_count_map.R` is a function to generate a chloropleth map of results;
+- `generate_state_report_text.R` and `state_fips_lookup.R` are helper functions.
 
 
 A portion of the development of the code uses a USGS non-native species list [@Simpson2018-data] to verify and qualify results from the BISON service.  The BISON queries used in to generate the bad neighbor results uses these data internally to indicate non-native status.
