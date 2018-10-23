@@ -27,22 +27,20 @@ The notebooks are all meant to stand alone to describe different elements of dev
 3) **3_grouped_species_notes.Rmd** (.html) documents the development of informal taxonomic groups like tree/shrub from formal taxonomic Families.
 
 
-### R Code
+### Code and Data
 
-An HTML version of the function documentation (help) files of each source script is available in the `docs/reference/index.html` folder.
-
-This work is R-based.  The **DESCRIPTION** file contains all the information about the R version and library dependencies.
+This work is R-based.  The **DESCRIPTION** file contains all the information about the R version and library dependencies.  The function documentation (help) files can be found in the **man** directory, and can be opened in any plain-text editor.  An HTML version of the help files of each source script is available in the `docs/reference/index.html` folder.
 
 The project is structured in the following directories:  
 
-**R**: the main R source code
-**docs**: HTML version of documentation for all the functions  
-**man**: Rendered documentation for the functions.  These can be opened in any plain-text editor  
-**data**: source data for the project  
-**result_csv**: result bad neighbor summaries stored as csv  
-**result_json**: result bad neighbor summaries and species lists stored as JSON  
-**graphics**: Various graphics generated as part of the analysis  
-**js**: Some old javascript functions used as reference
+**R**: the main R source code;
+**docs**: HTML version of documentation for all the functions;  
+**man**: Rendered documentation for the functions.  These can be opened in any plain-text editor;  
+**data**: source data for the project;  
+**result_csv**: result bad neighbor summaries stored as csv;  
+**result_json**: result bad neighbor summaries and species lists stored as JSON;  
+**graphics**: Various graphics generated as part of the analysis;  
+**js**: Some old javascript functions used as reference.
 
 
 ## Use Constraints
