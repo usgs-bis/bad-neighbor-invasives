@@ -29,7 +29,7 @@ The notebooks are all meant to stand alone to describe different elements of dev
 
 ### R Code
 
-An HTML version description of each source script is available in the `docs/reference/index.html` folder.
+An HTML version of the function documentation (help) files of each source script is available in the `docs/reference/index.html` folder.
 
 This work is R-based.  The **DESCRIPTION** file contains all the information about the R version and library dependencies.
 
