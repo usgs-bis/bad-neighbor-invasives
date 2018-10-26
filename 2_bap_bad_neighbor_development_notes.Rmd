@@ -36,6 +36,8 @@ The main query requires two parameters
 1) A single state (Federal Information Processing Standards) FIPS code or a parenthetical group of FIPS codes.  A FIPS is a five-digit code uniquely identifying counties in the U.S.  The first two digits of a FIPS denote the state, which is all that is used in this package.  Pairs of state FIPS codes and surrounding states are pre-developed and stored in `data/state_lookup.csv`.  Note: the list includes the District of Columbia;
 2) A string hierarchy_homonym_string in the form: `"*\\-179913\\-*"`.  A predefined list is stored in: `data/hierarchy_strings.csv`, and several groups of related taxa are in files ending in `"*_hierarchy_strings.csv"`.  The list of taxa is currently restricted to the best represented taxa in BISON.
 
+A function `get_hierarchy_string` has been written to query the Integrated Taxonomic Information System ([ITIS](https://www.itis.gov)) for the proper TSN and format it to use in the queries.  The function is documented, but examples have not been integrated in this analysis.
+
 
 ```{r query-test, message=FALSE, warning=FALSE}
 
