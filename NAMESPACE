@@ -3,6 +3,8 @@
 export(export_bad_neighbor_list)
 export(generate_bn_count_map)
 export(generate_state_report_text)
+export(get_hierarchy_string)
 export(process_bad_neighbor_groups)
 export(state_all_species_query)
 export(state_bad_neighbor_query)
+export(state_fips_lookup)

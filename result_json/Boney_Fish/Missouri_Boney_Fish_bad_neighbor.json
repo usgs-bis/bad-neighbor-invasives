@@ -1,1 +1,1 @@
-{"state_name":["Missouri"],"species_count":[1],"nn_abundance":[1],"species_list":[{"name":"Oreochromis mossambicus","cnt":1,"tsn":170015}]}
+{"state_name":["Missouri"],"bad_neighbor_count":[1],"nn_abundance":[1],"state_nn_species_count":[2],"species_list":[{"name":"Oreochromis mossambicus","cnt":1,"tsn":170015}]}

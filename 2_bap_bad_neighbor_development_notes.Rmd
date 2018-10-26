@@ -5,6 +5,19 @@ author: "Enrique Monta&ntilde;o, PhD"
 output: html_notebook
 ---
 
+```{r libraries}
+# This notebook uses the various libraries from the tidyverse group of R libraries
+library(tidyverse)
+
+# compile the query query code source scripts
+source("R/state_bad_neighbor_query.R")
+source("R/state_all_species_query.R")
+
+# load the export query code
+source("R/export_bad_neighbor_list.R")
+```
+
+
 The following outlines the various stages of development of the BAP.
 
 ## Testing
@@ -15,17 +28,18 @@ The various functions for the BAP are as follows:
 - `state_bad_neighbor_query.R` is the primary BISON query and parsing function to develop both the state and buffer state lists of non-native species;
 - `state_all_species_query.R` is a second BISON query/parsing function returning all species in a given state.  This is included for possible future work, but the results are not used here;
 - `export_bad_neighbor_list.R` is a wrapper function to run the intersect between states and the buffer states to create the bad neighbor list and export the results to JSON. Result files are located in the `results_json` directory;
-- `generate_bn_count_map.R` is a function to generate a chloropleth map of results.
+- `generate_bn_count_map.R` is a function to generate a chloropleth map of results;
+- `state_fips_lookup.R` is a helper function for finding FIPS codes and associated data using a state name.
 
 
 The main query requires two parameters
-1) A single state FIPS code or a parenthetical group of FIPS codes.  Pairs of state FIPS codes and surrounding states are pre-developed and stored in `data/state_lookup.csv`.  Note: the list includes the District of Columbia;
+1) A single state (Federal Information Processing Standards) FIPS code or a parenthetical group of FIPS codes.  A FIPS is a five-digit code uniquely identifying counties in the U.S.  The first two digits of a FIPS denote the state, which is all that is used in this package.  Pairs of state FIPS codes and surrounding states are pre-developed and stored in `data/state_lookup.csv`.  Note: the list includes the District of Columbia;
 2) A string hierarchy_homonym_string in the form: `"*\\-179913\\-*"`.  A predefined list is stored in: `data/hierarchy_strings.csv`, and several groups of related taxa are in files ending in `"*_hierarchy_strings.csv"`.  The list of taxa is currently restricted to the best represented taxa in BISON.
+
+A function `get_hierarchy_string` has been written to query the Integrated Taxonomic Information System ([ITIS](https://www.itis.gov)) for the proper TSN and format it to use in the queries.  The function is documented, but examples have not been integrated in this analysis.
 
 
 ```{r query-test, message=FALSE, warning=FALSE}
-# compile the query query code
-source("R/state_bad_neighbor_query.R")
 
 # run the code for Virginia
 # 51 FIPS code for Virginia
@@ -129,17 +143,16 @@ The export works, so now we can put it all together to loop over all combination
 Loop over all combinations of states and taxa.
 
 ```{r loop-all, eval=FALSE, message=FALSE, warning=FALSE}
-# load source scripts
-source("R/export_bad_neighbor_list.R")
-source("R/state_all_species_query.R")
-source("R/state_bad_neighbor_query.R")
-
 # load lookup tables
 taxa <- readr::read_csv("data/hierarchy_strings.csv")
 state_codes <- readr::read_csv("data/state_lookup.csv")
 
 # a subset of the taxa to query
-taxa_idx <- c(1,2,3,4,5,7,8,9)
+taxa_idx <- c(1,2)#,3,4,5,7,8,9)
+
+# a list to hold the final result
+all_results <- vector("list", length(taxa_idx))
+# all_results <- vector("list", nrow(taxa))
 
 # build a loop for the taxa
 # for (k in 1:nrow(taxa)) {
@@ -194,8 +207,9 @@ for(k in taxa_idx) {
 
 # export the result
 ar_json <- jsonlite::toJSON(all_results)
+
 # write the json to file
-readr::write_lines(ar_json, path = "result_json/all_taxa_summaries.json")
+# readr::write_lines(ar_json, path = "result_json/all_taxa_summaries.json")
 
 ```
 

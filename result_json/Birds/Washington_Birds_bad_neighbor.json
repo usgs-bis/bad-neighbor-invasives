@@ -1,1 +1,1 @@
-{"state_name":["Washington"],"species_count":[2],"nn_abundance":[2],"species_list":[{"name":"Tadorna tadorna","cnt":1,"tsn":175055},{"name":"Tetraogallus himalayensis","cnt":1,"tsn":175953}]}
+{"state_name":["Washington"],"bad_neighbor_count":[2],"nn_abundance":[2],"state_nn_species_count":[33],"species_list":[{"name":"Tadorna tadorna","cnt":1,"tsn":175055},{"name":"Tetraogallus himalayensis","cnt":1,"tsn":175953}]}

@@ -10,7 +10,7 @@ Description: This package is a Biogeographic Analysis Package (BAP) for determin
     but not yet documented in the state of interest.
 LazyData: TRUE
 Depends:
-    R (>= 3.5.0)
+    R (>= 3.4.3)
 Imports:
     dplyr (>= 0.7.6),
     ggplot2 (>= 3.0.0),
