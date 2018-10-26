@@ -103,7 +103,8 @@
     
     </div>
 
-    <pre class="usage"><span class='fu'>state_bad_neighbor_query</span>(<span class='no'>fips_list</span>, <span class='no'>taxon</span>, <span class='kw'>useEstMeans</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</pre>
+    <pre class="usage"><span class='fu'>state_bad_neighbor_query</span>(<span class='no'>fips_list</span>, <span class='no'>taxon</span>, <span class='no'>state_name</span>,
+  <span class='kw'>useEstMeans</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>get_buffer_fips</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -117,8 +118,16 @@
       <td><p>A string hierarchy_homonym_string in the form: "*\-179913\-*".  Predefined lists are stored in: `data/heirarchy_strings.csv`.  The list of taxa is currently restricted to the best represented taxa in BISON.</p></td>
     </tr>
     <tr>
+      <th>state_name</th>
+      <td><p>(Optional) string name of the state to process.</p></td>
+    </tr>
+    <tr>
       <th>useEstMeans</th>
       <td><p>(Optional) flag to use the non-native flag in BISON.  Defaults to TRUE.</p></td>
+    </tr>
+    <tr>
+      <th>get_buffer_fips</th>
+      <td><p>(Optional) flag to lookup the buffer states FIPS codes</p></td>
     </tr>
     </table>
     
@@ -129,11 +138,18 @@
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><span class='co'># NOT RUN {</span>
+<span class='co'># look up all non-native plants in Virginia</span>
 <span class='no'>va_nn</span> <span class='kw'>&lt;-</span> <span class='fu'>state_bad_neighbor_query</span>(<span class='kw'>fips_list</span> <span class='kw'>=</span> <span class='fl'>51</span>, <span class='kw'>taxon</span> <span class='kw'>=</span> <span class='st'>"*\\-202422\\-*"</span>)
 
-<span class='co'># for buffer states </span>
+<span class='co'># same query using state name</span>
+<span class='no'>va_nn</span> <span class='kw'>&lt;-</span> <span class='fu'>state_bad_neighbor_query</span>(<span class='kw'>state_name</span> <span class='kw'>=</span> <span class='st'>"Virginia"</span>, <span class='kw'>taxon</span> <span class='kw'>=</span> <span class='st'>"*\\-202422\\-*"</span>)
+
+<span class='co'># all non-native plants in the surrounding buffer states </span>
 <span class='no'>buff_states</span> <span class='kw'>&lt;-</span> <span class='st'>"(24 11 37 47 21 54)"</span>
 <span class='no'>buff_nn</span> <span class='kw'>&lt;-</span> <span class='fu'>state_bad_neighbor_query</span>(<span class='kw'>fips_list</span> <span class='kw'>=</span> <span class='no'>buff_states</span>, <span class='kw'>taxon</span> <span class='kw'>=</span> <span class='st'>"*\\-202422\\-*"</span>)
+
+<span class='co'># same query using state name and optional flag</span>
+<span class='no'>buff_nn</span> <span class='kw'>&lt;-</span> <span class='fu'>state_bad_neighbor_query</span>(<span class='kw'>state_name</span> <span class='kw'>=</span> <span class='st'>"Virginia"</span>, <span class='kw'>taxon</span> <span class='kw'>=</span> <span class='st'>"*\\-202422\\-*"</span>, <span class='kw'>get_buffer_fips</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)
 <span class='co'># }</span></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">

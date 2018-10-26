@@ -4,7 +4,8 @@
 \alias{state_all_species_query}
 \title{state_all_species_query}
 \usage{
-state_all_species_query(fips_list, taxon, state_name)
+state_all_species_query(fips_list, taxon, state_name,
+  get_buffer_fips = FALSE)
 }
 \arguments{
 \item{fips_list}{a single state two-digit FIPS code or a parenthetical group of FIPS codes.  Pairs of state FIPS codes and surrounding states are pre-developed and stored in `data/state_lookup.csv`.  Note: the list includes the Distict of Columbia;}
@@ -12,13 +13,24 @@ state_all_species_query(fips_list, taxon, state_name)
 \item{taxon}{a string hierarchy_homonym_string in the form: "*\\-179913\\-*".  Again, a predefined list is stored in: `data/heirarchy_strings.csv`.  The list of taxa is currently restricted to the best represented taxa in BISON.}
 
 \item{state_name}{a string name of the state to process.}
+
+\item{get_buffer_fips}{an optional flag to lookup the buffer states FIPS codes}
 }
 \value{
 a tibble with the name of the state, the overall occurrence count for all species in the taxon, and a count of the number of species in the taxon in the state.
 }
 \description{
-A BISON query/parsing function returning all species in a given state.  This is included for possible future work, but the results are not used here;
+A BISON query/parsing function returning the number (abundance) of all species in a given state.  The code
+does not return a full list of individual species, only the count.  The code will lookup
+the state FIPS code if needed.
 }
 \examples{
-all_species <- state_all_species_query(fips_list = 51, taxon = "*\\\\-179913\\\\-*", state_name = "Virginia")
+# find all birds ("*\\-174371\\-*") in Virginia
+all_species <- state_all_species_query(fips_list = 51, taxon = "*\\\\-174371\\\\-*", state_name = "Virginia")
+
+# same as above without knowing the fips
+all_species <- state_all_species_query(taxon = "*\\\\-174371\\\\-*", state_name = "Virginia")
+
+# run the above query for buffer states
+all_species <- state_all_species_query(taxon = "*\\\\-174371\\\\-*", state_name = "Virginia", get_buffer_fips = TRUE)
 }

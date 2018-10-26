@@ -4,14 +4,19 @@
 \alias{state_bad_neighbor_query}
 \title{state_bad_neighbor_list}
 \usage{
-state_bad_neighbor_query(fips_list, taxon, useEstMeans = TRUE)
+state_bad_neighbor_query(fips_list, taxon, state_name,
+  useEstMeans = TRUE, get_buffer_fips = FALSE)
 }
 \arguments{
 \item{fips_list}{a single state two-digit FIPS code or a parenthetical group of FIPS codes.  Pairs of state FIPS codes and surrounding states are pre-developed and stored in `data/state_lookup.csv`.  Note: the list includes the Distict of Columbia;}
 
 \item{taxon}{A string hierarchy_homonym_string in the form: "*\\-179913\\-*".  Predefined lists are stored in: `data/heirarchy_strings.csv`.  The list of taxa is currently restricted to the best represented taxa in BISON.}
 
+\item{state_name}{(Optional) string name of the state to process.}
+
 \item{useEstMeans}{(Optional) flag to use the non-native flag in BISON.  Defaults to TRUE.}
+
+\item{get_buffer_fips}{(Optional) flag to lookup the buffer states FIPS codes}
 }
 \value{
 a tibble.  A data frame with a list of bad neighbor species with associated TSN.
@@ -20,9 +25,16 @@ a tibble.  A data frame with a list of bad neighbor species with associated TSN.
 The primary BISON query and parsing function to develop both the state and buffer state lists of non-native species.
 }
 \examples{
+# look up all non-native plants in Virginia
 va_nn <- state_bad_neighbor_query(fips_list = 51, taxon = "*\\\\-202422\\\\-*")
 
-# for buffer states 
+# same query using state name
+va_nn <- state_bad_neighbor_query(state_name = "Virginia", taxon = "*\\\\-202422\\\\-*")
+
+# all non-native plants in the surrounding buffer states 
 buff_states <- "(24 11 37 47 21 54)"
 buff_nn <- state_bad_neighbor_query(fips_list = buff_states, taxon = "*\\\\-202422\\\\-*")
+
+# same query using state name and optional flag
+buff_nn <- state_bad_neighbor_query(state_name = "Virginia", taxon = "*\\\\-202422\\\\-*", get_buffer_fips = TRUE)
 }

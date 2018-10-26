@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>state_all_species_query — state_all_species_query • badNeighbor</title>
+<title>get_hierarchy_string — get_hierarchy_string • badNeighbor</title>
 
 <!-- jquery -->
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script>
@@ -30,11 +30,10 @@
 
 
 
-<meta property="og:title" content="state_all_species_query — state_all_species_query" />
+<meta property="og:title" content="get_hierarchy_string — get_hierarchy_string" />
 
-<meta property="og:description" content="A BISON query/parsing function returning the number (abundance) of all species in a given state.  The code
-does not return a full list of individual species, only the count.  The code will lookup
-the state FIPS code if needed." />
+<meta property="og:description" content="This a helper function to generate a formatted hierarchy string for a given taxon to use in the Bad Neighbor BAP.  The function uses 
+the SOLR service from the Integrated Taxonomic Information System ([ITIS](https://www.itis.gov))." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -94,58 +93,48 @@ the state FIPS code if needed." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>state_all_species_query</h1>
+    <h1>get_hierarchy_string</h1>
     
-    <div class="hidden name"><code>state_all_species_query.Rd</code></div>
+    <div class="hidden name"><code>get_hierarchy_string.Rd</code></div>
     </div>
 
     <div class="ref-description">
     
-    <p>A BISON query/parsing function returning the number (abundance) of all species in a given state.  The code
-does not return a full list of individual species, only the count.  The code will lookup
-the state FIPS code if needed.</p>
+    <p>This a helper function to generate a formatted hierarchy string for a given taxon to use in the Bad Neighbor BAP.  The function uses 
+the SOLR service from the Integrated Taxonomic Information System ([ITIS](https://www.itis.gov)).</p>
     
     </div>
 
-    <pre class="usage"><span class='fu'>state_all_species_query</span>(<span class='no'>fips_list</span>, <span class='no'>taxon</span>, <span class='no'>state_name</span>,
-  <span class='kw'>get_buffer_fips</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</pre>
+    <pre class="usage"><span class='fu'>get_hierarchy_string</span>(<span class='no'>taxon_name</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>fips_list</th>
-      <td><p>a single state two-digit FIPS code or a parenthetical group of FIPS codes.  Pairs of state FIPS codes and surrounding states are pre-developed and stored in `data/state_lookup.csv`.  Note: the list includes the Distict of Columbia;</p></td>
-    </tr>
-    <tr>
-      <th>taxon</th>
-      <td><p>a string hierarchy_homonym_string in the form: "*\-179913\-*".  Again, a predefined list is stored in: `data/heirarchy_strings.csv`.  The list of taxa is currently restricted to the best represented taxa in BISON.</p></td>
-    </tr>
-    <tr>
-      <th>state_name</th>
-      <td><p>a string name of the state to process.</p></td>
-    </tr>
-    <tr>
-      <th>get_buffer_fips</th>
-      <td><p>an optional flag to lookup the buffer states FIPS codes</p></td>
+      <th>taxon_name</th>
+      <td><p>A string for a scientific name for a taxonomic group to search</p></td>
     </tr>
     </table>
     
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>a tibble with the name of the state, the overall occurrence count for all species in the taxon, and a count of the number of species in the taxon in the state.</p>
+    <p>A tibble with the returned tsn, taxonomic rank and formatted hierarchy string to use in other parts of the BAP</p>
     
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><span class='co'># NOT RUN {</span>
-<span class='co'># find all birds ("*\-174371\-*") in Virginia</span>
-<span class='no'>all_species</span> <span class='kw'>&lt;-</span> <span class='fu'>state_all_species_query</span>(<span class='kw'>fips_list</span> <span class='kw'>=</span> <span class='fl'>51</span>, <span class='kw'>taxon</span> <span class='kw'>=</span> <span class='st'>"*\\-174371\\-*"</span>, <span class='kw'>state_name</span> <span class='kw'>=</span> <span class='st'>"Virginia"</span>)
+<span class='co'># query ITIS to get the string</span>
+<span class='no'>h_string</span> <span class='kw'>&lt;-</span> <span class='fu'>get_hierarchy_string</span>(<span class='st'>"Poaceae"</span>)
 
-<span class='co'># same as above without knowing the fips</span>
-<span class='no'>all_species</span> <span class='kw'>&lt;-</span> <span class='fu'>state_all_species_query</span>(<span class='kw'>taxon</span> <span class='kw'>=</span> <span class='st'>"*\\-174371\\-*"</span>, <span class='kw'>state_name</span> <span class='kw'>=</span> <span class='st'>"Virginia"</span>)
+<span class='co'># print the result</span>
+<span class='no'>h_string</span>
+<span class='co'># A tibble: 1 x 4</span>
+<span class='co'># tsn   rank   taxon   hierarchy_homonym_string</span>
+<span class='co'># &lt;chr&gt; &lt;chr&gt;  &lt;chr&gt;   &lt;chr&gt;                   </span>
+<span class='co'>#    1 40351 Family Poaceae "*\\-40351\\-*"</span>
 
-<span class='co'># run the above query for buffer states</span>
-<span class='no'>all_species</span> <span class='kw'>&lt;-</span> <span class='fu'>state_all_species_query</span>(<span class='kw'>taxon</span> <span class='kw'>=</span> <span class='st'>"*\\-174371\\-*"</span>, <span class='kw'>state_name</span> <span class='kw'>=</span> <span class='st'>"Virginia"</span>, <span class='kw'>get_buffer_fips</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)
+<span class='co'># use the result in the main bad neighbor query using state name and optional flag</span>
+<span class='no'>buff_nn</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='state_bad_neighbor_query.html'>state_bad_neighbor_query</a></span>(<span class='kw'>state_name</span> <span class='kw'>=</span> <span class='st'>"Virginia"</span>, <span class='kw'>taxon</span> <span class='kw'>=</span> <span class='no'>h_string</span>$<span class='no'>hierarchy_homonym_string</span>, <span class='kw'>get_buffer_fips</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)
 <span class='co'># }</span></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
