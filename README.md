@@ -1,8 +1,12 @@
 # README
 
-This is a repo for an R-based analysis of non-native species occurrences in the Lower 48 U.S. (including the District of Columbia), also referred to as the Bad Neighbor analysis.  The project uses the Biodiversity Information Serving Our Nation (BISON) species occurrence database [https://bison.usgs.gov](https://bison.usgs.gov)
+This is a repo for an R-based analysis of non-native species occurrences in the Lower 48 U.S. (including the District of Columbia), also referred to as the Bad Neighbor analysis.  The project uses the Biodiversity Information Serving Our Nation (BISON) species occurrence database [https://bison.usgs.gov](https://bison.usgs.gov).
 
 ## Installation
+
+The project was developed using [RStudio](https://www.rstudio.com/products/rstudio/download/), and installing the IDE is strongly recommended.
+
+To install the package from GitHub, use the code below.
 
 ```
 # Make sure the R devtools package is installed
@@ -10,6 +14,18 @@ This is a repo for an R-based analysis of non-native species occurrences in the 
 
 # then run
 devtools::install_github("usgs-bis/bad-neighbor-invasives")
+```
+
+Installing from GitHub will not provide the analysis notebooks, only the functions from the package.  To obtain the full package, download or clone the repo and install locally.
+
+```
+# Make sure the R devtools package is installed
+# install.packages("devtools")
+
+# navigate to the folder containing the project, or open the bap_bad_neighbor_analysis.Rproj in the downloaded file
+# setwd("bad-neighbor-invasives") # assuming you kept the folder name
+devtools::install()
+
 ```
 
 ### Get Started
