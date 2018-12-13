@@ -3,6 +3,7 @@ Type: Package
 Title: Bad Neighbor Analysis Package
 Version: 0.1.0
 Encoding: UTF-8
+License: file LICENSE
 Authors@R: c(person("Enrique", "Monta\u00F1o", role = c("aut", "cre"),
 		     email = "emontano@usgs.gov"))
 Description: This package is a Biogeographic Analysis Package (BAP) for determining
