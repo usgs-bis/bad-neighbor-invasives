@@ -93,7 +93,7 @@ va_nn_lookup
 va_nn_buffer_lookup
 ```
 
-We are getting the same result from both versions of the data, so that means the query using lookup works.
+The results are the same (name, occurrence counts, and TSN) from both versions of the query (by lookup and FIPS code).  The results from this test indicates both versions the query work and can be used interchangeably.
 
 ## Intersect results
 
@@ -108,7 +108,7 @@ diff_species_buffer
 
 ```
 
-There are 601 non-native plant species documented in states bordering this state that are not documented in the state itself in BISON.  Note that we are only interested in the number of species (number of rows in the result), not the count field.  The counts are recorded occurrences, but do not reflect a full distribution, so to report this number can be misleading.  However, reporting a documented species, i.e. a species with *any occurrence*, represents at least one known occurrence of the species.
+There are 601 non-native plant species documented in states bordering this state that are not documented in the state itself in BISON.  For the purpose of this analysis, only the number of species - counted as the number of unique rows returned by the query - is considered; The count field is only used for verification of results.  The count field represent recorded occurrences, but do not reflect a full distribution, so to report this number can be misleading.  However, reporting a documented species, i.e. a species with *any occurrence*, represents at least one known occurrence of the species in a given state.
 
 The result is consistent with the results from the web service: [NISC "Bad Neighbor" Analysis](http://www.stingersplace.com/js/BISONBadNeighbor.html), that runs the analysis based on ITIS scientific names instead of TSN.  The difference can be explain through the removal of ambiguous TSN (homonyms and synonyms) done in the query here.
 
@@ -140,7 +140,7 @@ The export works, so now we can put it all together to loop over all combination
 
 ## Generate all states
 
-Loop over all combinations of states and taxa.
+Loop over all combinations of states and taxa.  The code below is provided for example and is not run.
 
 ```{r loop-all, eval=FALSE, message=FALSE, warning=FALSE}
 # load lookup tables
