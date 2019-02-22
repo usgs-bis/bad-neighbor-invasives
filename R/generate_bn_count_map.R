@@ -6,6 +6,8 @@
 #'
 #' @param df a tibble.  Typically the results from the process_bad_neighbor_groups function
 #' @param taxon a string.  The [often informal] name of the taxon group to process (e.g. "Tree/Shrub")
+#' @param relative a boolean. Optionally add a title indicating the data are relative to the non-native
+#'     species already in the state. The data processing is done outside the plot function.
 #'
 #' @return a ggplot object with a chloropleth map of the bad neighbor counts for states.
 #'
@@ -20,7 +22,7 @@
 #'    summarize(species_count = sum(bad_neighbor_count)) %>% 
 #'    # pass to the plot function
 #'    generate_bn_count_map(taxon = "Tree/Shrub")
-generate_bn_count_map <- function(df, taxon) {
+generate_bn_count_map <- function(df, taxon, relative = FALSE) {
     # open the spatial data for US states
     us_states <- sf::st_as_sf(maps::map("state", plot = FALSE, fill = TRUE))
     
@@ -39,6 +41,11 @@ generate_bn_count_map <- function(df, taxon) {
     t <- stringr::str_c("Threat Assessment of Invasion by",
                         stringr::str_replace_all(taxon, "_", " "), "Bad Neighbors",
                         sep = " ") 
+    
+    # Add an option to normalize the data
+    if (relative) {
+        t <- stringr::str_c(t, "\nRelative to Existing State Non-Native", sep = "")
+    }
         
     # create a plot with states
     p <- ggplot2::ggplot() +
