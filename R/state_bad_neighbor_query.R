@@ -72,10 +72,10 @@ state_bad_neighbor_query <- function(fips_list, taxon, state_name,
     
     # build the url and execute
     query <- list(q = qstring,
-                  fl = "ITISscientificName,ITIStsn,ITIScommonName",
+                  fl = "ITISscientificName,ITIStsn",
                   facet = 'true', # facet the result
                   facet.mincount = 1, # minimum count to be included in result
-                  facet.pivot = "ITISscientificName,ITIStsn,ITIScommonName",
+                  facet.pivot = "ITISscientificName,ITIStsn",
                   # facet.field = 'ITIStsn',
                   # facet.field = "ITISscientificName",
                   # facet.field = "ITIScommonName", # common name if available
