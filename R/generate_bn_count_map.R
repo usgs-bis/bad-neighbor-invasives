@@ -17,11 +17,19 @@
 #' Load a results file from process_bad_neighbor_groups() function
 #' comb_all_results_forbs <- readr::read_csv("result_csv/forbs_comb_result.csv")
 #' 
-#' comb_all_results_forbs %>% 
+#' comb_all_results_trees %>% 
 #'    group_by(state_name) %>% 
 #'    summarize(species_count = sum(bad_neighbor_count)) %>% 
 #'    # pass to the plot function
 #'    generate_bn_count_map(taxon = "Tree/Shrub")
+#'    
+#' Show the results relative to the non-natives already present in the states
+#' comb_all_results_trees %>% 
+#'    group_by(state_name) %>% 
+#'    # Normalize the data
+#'    mutate(relative = bad_neighbor_count / state_nn_species_count) %>% 
+#'    summarise(species_count = sum(relative)) %>% 
+#'    generate_bn_count_map(taxon = "Tree/Shrub", relative = TRUE)
 generate_bn_count_map <- function(df, taxon, relative = FALSE) {
     # open the spatial data for US states
     us_states <- sf::st_as_sf(maps::map("state", plot = FALSE, fill = TRUE))
