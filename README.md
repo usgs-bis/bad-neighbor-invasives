@@ -30,9 +30,9 @@ devtools::install()
 
 ### Get Started
 
-There are several notebooks outlining various aspects of the project.  All of the analysis and results in the notebooks are self-contained and can be generated running the code chunks in the `.Rmd` versions of the notebooks, in the order they are presented within each notebook.
+There are several notebooks outlining various aspects of the project.  All of the analysis and results in the notebooks are self-contained and can be generated running the code chunks in the `.Rmd` versions of the notebooks, in the order they are presented within each notebook.  The `.Rmd` versions of the notebooks can also be opened and viewed as plain text in any text editor (e.g. Windows Notepad, Mac TextEdit, etc.).
 
-The HTML versions of the notebooks are pre-rendered versions of the code notebooks with the `.Rmd` extensions.  The results and graphics should already be rendered in the html.  If that’s not the case, the notebook should be run by running *all* the code chunks (Mac keyboard: option-command-R; windows keyboard: option-control-R).
+The HTML versions of the notebooks are pre-rendered versions of the code notebooks with the `.Rmd` extensions.  The results and graphics should already be rendered in the html.  If that’s not the case, the notebook should be run by running *all* the code chunks (Mac keyboard: `option-command-R`; windows keyboard: `option-control-R`).
 
 The notebooks are all meant to stand alone to describe different elements of development or illustrate the analysis.  Thus each notebook can be run without the others and are organized as follows:
 

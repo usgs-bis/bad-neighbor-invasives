@@ -6,6 +6,8 @@
 #'
 #' @param df a tibble.  Typically the results from the process_bad_neighbor_groups function
 #' @param taxon a string.  The [often informal] name of the taxon group to process (e.g. "Tree/Shrub")
+#' @param relative a boolean. Optionally add a title indicating the data are relative to the non-native
+#'     species already in the state. The data processing is done outside the plot function.
 #'
 #' @return a ggplot object with a chloropleth map of the bad neighbor counts for states.
 #'
@@ -15,12 +17,20 @@
 #' Load a results file from process_bad_neighbor_groups() function
 #' comb_all_results_forbs <- readr::read_csv("result_csv/forbs_comb_result.csv")
 #' 
-#' comb_all_results_forbs %>% 
+#' comb_all_results_trees %>% 
 #'    group_by(state_name) %>% 
 #'    summarize(species_count = sum(bad_neighbor_count)) %>% 
 #'    # pass to the plot function
 #'    generate_bn_count_map(taxon = "Tree/Shrub")
-generate_bn_count_map <- function(df, taxon) {
+#'    
+#' Show the results relative to the non-natives already present in the states
+#' comb_all_results_trees %>% 
+#'    group_by(state_name) %>% 
+#'    # Normalize the data
+#'    mutate(relative = bad_neighbor_count / state_nn_species_count) %>% 
+#'    summarise(species_count = sum(relative)) %>% 
+#'    generate_bn_count_map(taxon = "Tree/Shrub", relative = TRUE)
+generate_bn_count_map <- function(df, taxon, relative = FALSE) {
     # open the spatial data for US states
     us_states <- sf::st_as_sf(maps::map("state", plot = FALSE, fill = TRUE))
     
@@ -39,6 +49,11 @@ generate_bn_count_map <- function(df, taxon) {
     t <- stringr::str_c("Threat Assessment of Invasion by",
                         stringr::str_replace_all(taxon, "_", " "), "Bad Neighbors",
                         sep = " ") 
+    
+    # Add an option to normalize the data
+    if (relative) {
+        t <- stringr::str_c(t, "\nRelative to Existing State Non-Native", sep = "")
+    }
         
     # create a plot with states
     p <- ggplot2::ggplot() +

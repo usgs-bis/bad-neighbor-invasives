@@ -4,12 +4,15 @@
 \alias{generate_bn_count_map}
 \title{generate_bn_count_map}
 \usage{
-generate_bn_count_map(df, taxon)
+generate_bn_count_map(df, taxon, relative = FALSE)
 }
 \arguments{
 \item{df}{a tibble.  Typically the results from the process_bad_neighbor_groups function}
 
 \item{taxon}{a string.  The [often informal] name of the taxon group to process (e.g. "Tree/Shrub")}
+
+\item{relative}{a boolean. Optionally add a title indicating the data are relative to the non-native
+species already in the state. The data processing is done outside the plot function.}
 }
 \value{
 a ggplot object with a chloropleth map of the bad neighbor counts for states.
@@ -21,9 +24,17 @@ A function to generate a chloropleth map of results.
 Load a results file from process_bad_neighbor_groups() function
 comb_all_results_forbs <- readr::read_csv("result_csv/forbs_comb_result.csv")
 
-comb_all_results_forbs \%>\% 
+comb_all_results_trees \%>\% 
    group_by(state_name) \%>\% 
    summarize(species_count = sum(bad_neighbor_count)) \%>\% 
    # pass to the plot function
    generate_bn_count_map(taxon = "Tree/Shrub")
+   
+Show the results relative to the non-natives already present in the states
+comb_all_results_trees \%>\% 
+   group_by(state_name) \%>\% 
+   # Normalize the data
+   mutate(relative = bad_neighbor_count / state_nn_species_count) \%>\% 
+   summarise(species_count = sum(relative)) \%>\% 
+   generate_bn_count_map(taxon = "Tree/Shrub", relative = TRUE)
 }

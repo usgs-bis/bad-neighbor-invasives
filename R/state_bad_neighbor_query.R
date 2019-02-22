@@ -78,6 +78,7 @@ state_bad_neighbor_query <- function(fips_list, taxon, state_name,
                   facet.pivot = "ITISscientificName,ITIStsn",
                   # facet.field = 'ITIStsn',
                   # facet.field = "ITISscientificName",
+                  # facet.field = "ITIScommonName", # common name if available
                   facet.limit = -1, #return all the results
                   wt = 'json', # return result as json
                   json.nl = "arrarr", # return result as an array
