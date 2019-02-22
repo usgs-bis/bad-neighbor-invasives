@@ -312,6 +312,7 @@ What contribution does each group make to the total of bad neighbor plants?
 comb_all_results <- readr::read_csv("result_csv/combine_all_plant_bad_neighbor.csv")
 
 comb_all_results %>% 
+    filter(family %in% c("Tree/Shrub", "Ivy/Vine", "Forb/Herb", "Grass")) %>% 
     group_by(family) %>% # group by family
     summarise(contrib_bad_neighbor = sum(bad_neighbor_count)) %>%  # calculate the sum of each group
     mutate(pct_contrib_bad_neighbor = (contrib_bad_neighbor / sum(contrib_bad_neighbor) * 100)) %>% 
