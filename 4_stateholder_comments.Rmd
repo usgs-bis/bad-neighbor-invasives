@@ -1,0 +1,24 @@
+---
+title: "Stakeholder Commments/Revisions"
+output: html_notebook
+---
+
+## Implementation notes for Bad Neighbor Analysis in the National Biogeographic Map
+
+### Assumptions:
+
+ * A previous single state prototype implementation was done for Colorado in a Beta version of the [National Biogeographic Map](https://my-beta.usgs.gov/biogeography/#eyJmZWF0dXJlIjp7ImlkIjoiVVNfU3RhdGVzX2FuZF9UZXJyaXRvcmllczpzdGF0ZV9maXBzY29kZTowOCJ9LCJiYXNlbWFwIjp7InRpdGxlIjoiVVNHUyBUb3BvZ3JhcGhpYyIsInR5cGUiOiJUaWxlTGF5ZXIiLCJzZXJ2aWNlVXJsIjoiaHR0cHM6Ly9iYXNlbWFwLm5hdGlvbmFsbWFwLmdvdi9hcmNnaXMvcmVzdC9zZXJ2aWNlcy9VU0dTVG9wby9NYXBTZXJ2ZXIvdGlsZS97en0ve3l9L3t4fSIsInNlbGVjdGVkIjp0cnVlLCJ0aHVtYm5haWxJbWFnZSI6Imh0dHBzOi8vYmFzZW1hcC5uYXRpb25hbG1hcC5nb3YvYXJjZ2lzL3Jlc3Qvc2VydmljZXMvVVNHU1RvcG8vTWFwU2VydmVyL2luZm8vdGh1bWJuYWlsIn0sInRpbWVTbGlkZXIiOnsicmFuZ2VZZWFyTWluIjoyMDAwLCJyYW5nZVllYXJNYXgiOjIwMTAsIm1hcERpc3BsYXlZZWFyIjoyMDA1fSwiYmFwIjp7ImFjdGl2ZUxheWVyVGl0bGUiOiIiLCJwcmlvcml0eUJhcCI6ImJhcDkifSwicG9pbnQiOnsibGF0IjozOC44NjIxNTYyMjkxNTk2MywibG5nIjotMTA2LjE4MzQ0MjgxNzYsImVsdiI6IjgsMzc1In19). Stakeholders have agreed to support the full implemention of the state lists of bad neighbors capability shown in that prototype but not the parsed charts of life.  These charts require static data and which are likely to give irrational results as data are added to BISON if they are made dynamic.
+
+ * Data for the analysis are derived through dynamic API queries to BISON found in the [state_bad_neighbor_query.R](https://github.com/usgs-bis/bad-neighbor-invasives/blob/master/R/state_bad_neighbor_query.R) and [state_all_species_query.R](https://github.com/usgs-bis/bad-neighbor-invasives/blob/master/R/state_all_species_query.R) files.  The code is both dynamic in drawing data directly from BISON, and functional. There is no reliance on static distribution data unless the query fails. The process does generate a series of csv and json files that are then used as input for other processes but the generation of these is included in the code so it could be run either dynamically (probably slowly) or as a staged automatic refresh.
+ 
+ * The data acquisition for a part of analysis in the  [process_bad_neighbor_groups.R](https://github.com/usgs-bis/bad-neighbor-invasives/blob/master/R/process_bad_neighbor_groups.R) function relies on static data for life forms but it should not be part of this implementation. The portion that uses the hierarchy_homonym_string to generate data for taxonomic groups is dynamic but due to sampling bias across taxonomic groups in BISON, the results would need a great deal of interpretation for the user.
+
+### Suggested Implementation Plan:
+
+1. Re-implement the tabular state lookup of bad neighbor species found in the [Beta National Biogeographic Map](https://my-beta.usgs.gov/biogeography/#eyJmZWF0dXJlIjp7ImlkIjoiVVNfU3RhdGVzX2FuZF9UZXJyaXRvcmllczpzdGF0ZV9maXBzY29kZTowOCJ9LCJiYXNlbWFwIjp7InRpdGxlIjoiVVNHUyBUb3BvZ3JhcGhpYyIsInR5cGUiOiJUaWxlTGF5ZXIiLCJzZXJ2aWNlVXJsIjoiaHR0cHM6Ly9iYXNlbWFwLm5hdGlvbmFsbWFwLmdvdi9hcmNnaXMvcmVzdC9zZXJ2aWNlcy9VU0dTVG9wby9NYXBTZXJ2ZXIvdGlsZS97en0ve3l9L3t4fSIsInNlbGVjdGVkIjp0cnVlLCJ0aHVtYm5haWxJbWFnZSI6Imh0dHBzOi8vYmFzZW1hcC5uYXRpb25hbG1hcC5nb3YvYXJjZ2lzL3Jlc3Qvc2VydmljZXMvVVNHU1RvcG8vTWFwU2VydmVyL2luZm8vdGh1bWJuYWlsIn0sInRpbWVTbGlkZXIiOnsicmFuZ2VZZWFyTWluIjoyMDAwLCJyYW5nZVllYXJNYXgiOjIwMTAsIm1hcERpc3BsYXlZZWFyIjoyMDA1fSwiYmFwIjp7ImFjdGl2ZUxheWVyVGl0bGUiOiIiLCJwcmlvcml0eUJhcCI6ImJhcDkifSwicG9pbnQiOnsibGF0IjozOC44NjIxNTYyMjkxNTk2MywibG5nIjotMTA2LjE4MzQ0MjgxNzYsImVsdiI6IjgsMzc1In19), and extend the capability to all states. A click from a state polygon or state name entry box would work for selection of states. This bad neighbor list of non-natives that occur in neighboring states but not in the target state is the heart of the package and the important part to implement.
+
+2. A user information popup or clearly displayed informational text should accompany any results. It should say:
+    
+"This is a list of non-native species that are documented to occur in Bidiversity Information Serving Our Nation (BISON) in one or more surrounding states but not the queried state. Distributions in BISON are not guaranteed complete and can have sampling bias. Determination of non-native status is according to [Simpson and Eyler](https://pubs.er.usgs.gov/publication/ofr20181156)." 
+    
+    
